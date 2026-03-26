@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DataProvider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mecn</a> &gt; <a href="index.source.html" class="el_package">com.mecn.data.provider</a> &gt; <span class="el_source">DataProvider.java</span></div><h1>DataProvider.java</h1><pre class="source lang-java linenums">package com.mecn.data.provider;
+
+import com.mecn.model.EconomicIndicator;
+import com.mecn.model.TimeSeriesData;
+
+import java.time.LocalDate;
+import java.util.List;
+
+/**
+ * 数据提供者接口
+ * 
+ * 统一真实 API 和模拟数据的访问契约
+ */
+public interface DataProvider {
+    
+    /**
+     * 获取经济指标时间序列数据
+     * 
+     * @param indicators 指标列表
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 时间序列数据列表
+     */
+    List&lt;TimeSeriesData&gt; fetch(List&lt;EconomicIndicator&gt; indicators, 
+                                LocalDate startDate, 
+                                LocalDate endDate);
+    
+    /**
+     * 获取支持的指标列表
+     * 
+     * @return 支持的指标列表
+     */
+    List&lt;EconomicIndicator&gt; getSupportedIndicators();
+    
+    /**
+     * 数据源名称
+     * 
+     * @return 数据源名称（如 &quot;FRED&quot;, &quot;WorldBank&quot;, &quot;Simulated&quot;）
+     */
+    String getName();
+    
+    /**
+     * 检查数据源是否可用
+     * 
+     * @return true 如果数据源可用
+     */
+    default boolean isAvailable() {
+<span class="nc" id="L48">        return true;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

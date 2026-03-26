@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DocsController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mecn</a> &gt; <a href="index.source.html" class="el_package">com.mecn.api</a> &gt; <span class="el_source">DocsController.java</span></div><h1>DocsController.java</h1><pre class="source lang-java linenums">package com.mecn.api;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * API 文档控制器
+ */
+@RestController
+@RequestMapping(&quot;/api&quot;)
+@CrossOrigin(origins = &quot;*&quot;)
+<span class="nc" id="L18">public class DocsController {</span>
+
+    @GetMapping(&quot;/docs&quot;)
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; getApiDocs() {
+<span class="nc" id="L22">        Map&lt;String, Object&gt; docs = new HashMap&lt;&gt;();</span>
+        
+<span class="nc" id="L24">        docs.put(&quot;title&quot;, &quot;MECN REST API&quot;);</span>
+<span class="nc" id="L25">        docs.put(&quot;version&quot;, &quot;1.0.0&quot;);</span>
+<span class="nc" id="L26">        docs.put(&quot;description&quot;, &quot;高维宏观经济因果网络联动模型 API&quot;);</span>
+        
+<span class="nc" id="L28">        Map&lt;String, Object&gt; endpoints = new HashMap&lt;&gt;();</span>
+        
+<span class="nc" id="L30">        Map&lt;String, Object&gt; buildEndpoint = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L31">        buildEndpoint.put(&quot;method&quot;, &quot;POST&quot;);</span>
+<span class="nc" id="L32">        buildEndpoint.put(&quot;path&quot;, &quot;/api/network/build&quot;);</span>
+<span class="nc" id="L33">        buildEndpoint.put(&quot;description&quot;, &quot;构建因果网络&quot;);</span>
+<span class="nc" id="L34">        Map&lt;String, Object&gt; buildParams = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L35">        buildParams.put(&quot;dataSource&quot;, &quot;数据源 (simulated/fred/worldbank)&quot;);</span>
+<span class="nc" id="L36">        buildParams.put(&quot;numPeriods&quot;, &quot;历史期数（默认 150）&quot;);</span>
+<span class="nc" id="L37">        buildParams.put(&quot;edgeThreshold&quot;, &quot;边阈值（默认 0.08）&quot;);</span>
+<span class="nc" id="L38">        buildParams.put(&quot;significanceLevel&quot;, &quot;显著性水平（默认 0.05）&quot;);</span>
+<span class="nc" id="L39">        buildEndpoint.put(&quot;parameters&quot;, buildParams);</span>
+<span class="nc" id="L40">        endpoints.put(&quot;build&quot;, buildEndpoint);</span>
+        
+<span class="nc" id="L42">        Map&lt;String, Object&gt; rippleEndpoint = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L43">        rippleEndpoint.put(&quot;method&quot;, &quot;POST&quot;);</span>
+<span class="nc" id="L44">        rippleEndpoint.put(&quot;path&quot;, &quot;/api/network/ripple&quot;);</span>
+<span class="nc" id="L45">        rippleEndpoint.put(&quot;description&quot;, &quot;执行涟漪效应模拟&quot;);</span>
+<span class="nc" id="L46">        Map&lt;String, Object&gt; rippleParams = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L47">        rippleParams.put(&quot;shockNode&quot;, &quot;冲击节点 ID（必需）&quot;);</span>
+<span class="nc" id="L48">        rippleParams.put(&quot;magnitude&quot;, &quot;冲击幅度（默认 -0.1）&quot;);</span>
+<span class="nc" id="L49">        rippleParams.put(&quot;timeSteps&quot;, &quot;时间步数（默认 20）&quot;);</span>
+<span class="nc" id="L50">        rippleParams.put(&quot;decayFactor&quot;, &quot;衰减因子（默认 0.9）&quot;);</span>
+<span class="nc" id="L51">        rippleEndpoint.put(&quot;parameters&quot;, rippleParams);</span>
+<span class="nc" id="L52">        endpoints.put(&quot;ripple&quot;, rippleEndpoint);</span>
+        
+<span class="nc" id="L54">        Map&lt;String, Object&gt; systemicEndpoint = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L55">        systemicEndpoint.put(&quot;method&quot;, &quot;GET&quot;);</span>
+<span class="nc" id="L56">        systemicEndpoint.put(&quot;path&quot;, &quot;/api/network/systemic-importance&quot;);</span>
+<span class="nc" id="L57">        systemicEndpoint.put(&quot;description&quot;, &quot;获取系统重要性节点排名&quot;);</span>
+<span class="nc" id="L58">        endpoints.put(&quot;systemic-importance&quot;, systemicEndpoint);</span>
+        
+<span class="nc" id="L60">        docs.put(&quot;endpoints&quot;, endpoints);</span>
+        
+<span class="nc" id="L62">        Map&lt;String, Object&gt; responseExample = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L63">        responseExample.put(&quot;success&quot;, true);</span>
+<span class="nc" id="L64">        responseExample.put(&quot;data&quot;, &quot;{ nodes, links }&quot;);</span>
+<span class="nc" id="L65">        responseExample.put(&quot;statistics&quot;, &quot;{ nodeCount, edgeCount, density, avgDegree }&quot;);</span>
+<span class="nc" id="L66">        docs.put(&quot;responseFormat&quot;, responseExample);</span>
+        
+<span class="nc" id="L68">        return ResponseEntity.ok(docs);</span>
+    }
+    
+    @GetMapping(&quot;/health&quot;)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; health() {
+<span class="nc" id="L73">        Map&lt;String, String&gt; response = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L74">        response.put(&quot;status&quot;, &quot;UP&quot;);</span>
+<span class="nc" id="L75">        response.put(&quot;service&quot;, &quot;MECN API&quot;);</span>
+<span class="nc" id="L76">        response.put(&quot;timestamp&quot;, String.valueOf(System.currentTimeMillis()));</span>
+<span class="nc" id="L77">        return ResponseEntity.ok(response);</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

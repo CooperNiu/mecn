@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CausalDiscoveryExample.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mecn</a> &gt; <a href="index.source.html" class="el_package">com.mecn.causal</a> &gt; <span class="el_source">CausalDiscoveryExample.java</span></div><h1>CausalDiscoveryExample.java</h1><pre class="source lang-java linenums">package com.mecn.causal;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * PCMCI 和 Granger 因果发现算法使用示例
+ */
+<span class="nc" id="L9">public class CausalDiscoveryExample {</span>
+    
+    public static void main(String[] args) {
+        // 生成示例数据
+<span class="nc" id="L13">        double[][] data = generateSampleData();</span>
+        
+<span class="nc" id="L15">        System.out.println(&quot;=== MECN 因果发现算法示例 ===\n&quot;);</span>
+        
+        // 示例 1: 使用 LASSO
+<span class="nc" id="L18">        System.out.println(&quot;1. LASSO 回归方法&quot;);</span>
+<span class="nc" id="L19">        causalDiscoveryWithLasso(data);</span>
+        
+        // 示例 2: 使用 Granger 因果检验
+<span class="nc" id="L22">        System.out.println(&quot;\n2. Granger 因果检验&quot;);</span>
+<span class="nc" id="L23">        causalDiscoveryWithGranger(data);</span>
+        
+        // 示例 3: 使用 PCMCI
+<span class="nc" id="L26">        System.out.println(&quot;\n3. PCMCI 算法&quot;);</span>
+<span class="nc" id="L27">        causalDiscoveryWithPCMCI(data);</span>
+        
+        // 示例 4: 多方法集成
+<span class="nc" id="L30">        System.out.println(&quot;\n4. 多方法集成 (Ensemble)&quot;);</span>
+<span class="nc" id="L31">        causalDiscoveryWithEnsemble(data);</span>
+<span class="nc" id="L32">    }</span>
+    
+    /**
+     * 生成示例数据
+     * 模拟简单的因果关系：X -&gt; Y -&gt; Z
+     */
+    private static double[][] generateSampleData() {
+<span class="nc" id="L39">        int T = 200;  // 200 个时间点</span>
+<span class="nc" id="L40">        int N = 4;    // 4 个变量：X, Y, Z, W</span>
+        
+<span class="nc" id="L42">        double[][] data = new double[T][N];</span>
+        
+        // 初始化随机数生成器
+<span class="nc" id="L45">        java.util.Random random = new java.util.Random(42);</span>
+        
+        // 生成数据
+<span class="nc bnc" id="L48" title="All 2 branches missed.">        for (int t = 0; t &lt; T; t++) {</span>
+<span class="nc bnc" id="L49" title="All 2 branches missed.">            if (t == 0) {</span>
+                // 初始值
+<span class="nc" id="L51">                data[t][0] = random.nextGaussian();  // X</span>
+<span class="nc" id="L52">                data[t][1] = random.nextGaussian();  // Y</span>
+<span class="nc" id="L53">                data[t][2] = random.nextGaussian();  // Z</span>
+<span class="nc" id="L54">                data[t][3] = random.nextGaussian();  // W</span>
+<span class="nc" id="L55">            } else {</span>
+                // X: 自回归过程
+<span class="nc" id="L57">                data[t][0] = 0.5 * data[t-1][0] + random.nextGaussian() * 0.5;</span>
+                
+                // Y: 受 X 的滞后影响 (X -&gt; Y)
+<span class="nc" id="L60">                data[t][1] = 0.3 * data[t-1][1] + 0.4 * data[t-1][0] + random.nextGaussian() * 0.5;</span>
+                
+                // Z: 受 Y 的滞后影响 (Y -&gt; Z)
+<span class="nc" id="L63">                data[t][2] = 0.3 * data[t-1][2] + 0.5 * data[t-1][1] + random.nextGaussian() * 0.5;</span>
+                
+                // W: 独立过程
+<span class="nc" id="L66">                data[t][3] = 0.6 * data[t-1][3] + random.nextGaussian() * 0.5;</span>
+            }
+        }
+        
+<span class="nc" id="L70">        return data;</span>
+    }
+    
+    /**
+     * LASSO 回归因果发现
+     */
+    private static void causalDiscoveryWithLasso(double[][] data) {
+<span class="nc" id="L77">        CausalResult result = new CausalEngineBuilder()</span>
+<span class="nc" id="L78">            .data(data)</span>
+<span class="nc" id="L79">            .method(new LassoRegression()</span>
+<span class="nc" id="L80">                .withLambda(0.1)</span>
+<span class="nc" id="L81">                .withThreshold(0.05))</span>
+<span class="nc" id="L82">            .significanceLevel(0.05)</span>
+<span class="nc" id="L83">            .discover();</span>
+        
+<span class="nc" id="L85">        printTopCausalLinks(result, 5);</span>
+<span class="nc" id="L86">    }</span>
+    
+    /**
+     * Granger 因果检验
+     */
+    private static void causalDiscoveryWithGranger(double[][] data) {
+<span class="nc" id="L92">        CausalResult result = new CausalEngineBuilder()</span>
+<span class="nc" id="L93">            .data(data)</span>
+<span class="nc" id="L94">            .method(new GrangerCausality()</span>
+<span class="nc" id="L95">                .withLag(2)</span>
+<span class="nc" id="L96">                .withSignificanceLevel(0.05))</span>
+<span class="nc" id="L97">            .significanceLevel(0.05)</span>
+<span class="nc" id="L98">            .discover();</span>
+        
+<span class="nc" id="L100">        printTopCausalLinks(result, 5);</span>
+<span class="nc" id="L101">    }</span>
+    
+    /**
+     * PCMCI 算法
+     */
+    private static void causalDiscoveryWithPCMCI(double[][] data) {
+<span class="nc" id="L107">        CausalResult result = new CausalEngineBuilder()</span>
+<span class="nc" id="L108">            .data(data)</span>
+<span class="nc" id="L109">            .method(new PCMCI()</span>
+<span class="nc" id="L110">                .withTauMax(5)</span>
+<span class="nc" id="L111">                .withPcAlpha(0.05)</span>
+<span class="nc" id="L112">                .withConfidenceLevel(0.95))</span>
+<span class="nc" id="L113">            .significanceLevel(0.05)</span>
+<span class="nc" id="L114">            .discover();</span>
+        
+<span class="nc" id="L116">        printTopCausalLinks(result, 5);</span>
+<span class="nc" id="L117">    }</span>
+    
+    /**
+     * 多方法集成
+     */
+    private static void causalDiscoveryWithEnsemble(double[][] data) {
+<span class="nc" id="L123">        List&lt;CausalMethod&gt; methods = Arrays.asList(</span>
+<span class="nc" id="L124">            new LassoRegression().withLambda(0.1),</span>
+<span class="nc" id="L125">            new GrangerCausality().withLag(2),</span>
+<span class="nc" id="L126">            new PCMCI().withTauMax(3)</span>
+        );
+        
+<span class="nc" id="L129">        CausalResult result = new CausalEngineBuilder()</span>
+<span class="nc" id="L130">            .data(data)</span>
+<span class="nc" id="L131">            .methods(methods)</span>
+<span class="nc" id="L132">            .significanceLevel(0.05)</span>
+<span class="nc" id="L133">            .maxLag(5)</span>
+<span class="nc" id="L134">            .fusionStrategy(FusionStrategy.HYBRID)</span>
+<span class="nc" id="L135">            .minVotes(2)</span>
+<span class="nc" id="L136">            .discover();</span>
+        
+<span class="nc" id="L138">        printTopCausalLinks(result, 5);</span>
+        
+        // 打印元数据
+<span class="nc" id="L141">        System.out.println(&quot;   使用方法数：&quot; + result.getMetadata().get(&quot;numMethods&quot;));</span>
+<span class="nc" id="L142">        System.out.println(&quot;   融合策略：&quot; + result.getMetadata().get(&quot;fusionStrategy&quot;));</span>
+<span class="nc" id="L143">    }</span>
+    
+    /**
+     * 打印最强的因果链接
+     */
+    private static void printTopCausalLinks(CausalResult result, int topK) {
+<span class="nc" id="L149">        double[][] matrix = result.getAdjacencyMatrix();</span>
+<span class="nc" id="L150">        int N = matrix.length;</span>
+        
+        // 收集所有非零边
+<span class="nc" id="L153">        List&lt;double[]&gt; edges = new java.util.ArrayList&lt;&gt;();</span>
+<span class="nc bnc" id="L154" title="All 2 branches missed.">        for (int i = 0; i &lt; N; i++) {</span>
+<span class="nc bnc" id="L155" title="All 2 branches missed.">            for (int j = 0; j &lt; N; j++) {</span>
+<span class="nc bnc" id="L156" title="All 4 branches missed.">                if (i != j &amp;&amp; Math.abs(matrix[i][j]) &gt; 0.01) {</span>
+<span class="nc" id="L157">                    edges.add(new double[]{j, i, Math.abs(matrix[i][j])});</span>
+                }
+            }
+        }
+        
+        // 按强度排序
+<span class="nc" id="L163">        edges.sort((a, b) -&gt; Double.compare(b[2], a[2]));</span>
+        
+        // 打印前 K 个
+<span class="nc" id="L166">        String[] varNames = {&quot;X&quot;, &quot;Y&quot;, &quot;Z&quot;, &quot;W&quot;};</span>
+<span class="nc" id="L167">        System.out.println(&quot;   最强的 &quot; + Math.min(topK, edges.size()) + &quot; 条因果链接:&quot;);</span>
+        
+<span class="nc bnc" id="L169" title="All 2 branches missed.">        for (int k = 0; k &lt; Math.min(topK, edges.size()); k++) {</span>
+<span class="nc" id="L170">            double[] edge = edges.get(k);</span>
+<span class="nc" id="L171">            int source = (int) edge[0];</span>
+<span class="nc" id="L172">            int target = (int) edge[1];</span>
+<span class="nc" id="L173">            double strength = edge[2];</span>
+            
+<span class="nc" id="L175">            System.out.printf(&quot;   %d. %s → %s (强度：%.4f)%n&quot;, </span>
+<span class="nc" id="L176">                k + 1, varNames[source], varNames[target], strength);</span>
+        }
+<span class="nc" id="L178">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

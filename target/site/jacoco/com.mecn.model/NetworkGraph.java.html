@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>NetworkGraph.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mecn</a> &gt; <a href="index.source.html" class="el_package">com.mecn.model</a> &gt; <span class="el_source">NetworkGraph.java</span></div><h1>NetworkGraph.java</h1><pre class="source lang-java linenums">package com.mecn.model;
+
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultDirectedWeightedGraph;
+import org.jgrapht.graph.DefaultWeightedEdge;
+
+import java.util.*;
+
+/**
+ * 网络图封装类
+ * 
+ * 封装 JGraphT 图结构，提供高级操作接口
+ */
+public class NetworkGraph {
+    
+    private Graph&lt;String, DefaultWeightedEdge&gt; graph;
+    private List&lt;EconomicIndicator&gt; indicators;
+    private Map&lt;String, Object&gt; metadata;
+    
+<span class="fc" id="L20">    public NetworkGraph() {</span>
+<span class="fc" id="L21">        this.graph = new DefaultDirectedWeightedGraph&lt;&gt;(DefaultWeightedEdge.class);</span>
+<span class="fc" id="L22">        this.indicators = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L23">        this.metadata = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L24">    }</span>
+    
+<span class="fc" id="L26">    public NetworkGraph(Graph&lt;String, DefaultWeightedEdge&gt; graph) {</span>
+<span class="fc" id="L27">        this.graph = graph;</span>
+<span class="fc" id="L28">        this.indicators = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L29">        this.metadata = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L30">    }</span>
+    
+    /**
+     * 添加节点（经济指标）
+     */
+    public void addNode(String nodeId, EconomicIndicator indicator) {
+<span class="pc bpc" id="L36" title="1 of 2 branches missed.">        if (!graph.containsVertex(nodeId)) {</span>
+<span class="fc" id="L37">            graph.addVertex(nodeId);</span>
+<span class="fc" id="L38">            indicators.add(indicator);</span>
+        }
+<span class="fc" id="L40">    }</span>
+    
+    /**
+     * 添加因果边
+     */
+    public void addEdge(String source, String target, double weight) {
+<span class="pc bpc" id="L46" title="2 of 4 branches missed.">        if (graph.containsVertex(source) &amp;&amp; graph.containsVertex(target)) {</span>
+<span class="fc" id="L47">            DefaultWeightedEdge edge = graph.addEdge(source, target);</span>
+<span class="pc bpc" id="L48" title="1 of 2 branches missed.">            if (edge != null) {</span>
+<span class="fc" id="L49">                graph.setEdgeWeight(edge, Math.abs(weight));</span>
+            }
+        }
+<span class="fc" id="L52">    }</span>
+    
+    /**
+     * 获取所有节点
+     */
+    public Set&lt;String&gt; getNodes() {
+<span class="fc" id="L58">        return graph.vertexSet();</span>
+    }
+    
+    /**
+     * 获取所有边
+     */
+    public Set&lt;DefaultWeightedEdge&gt; getEdges() {
+<span class="fc" id="L65">        return graph.edgeSet();</span>
+    }
+    
+    /**
+     * 获取边的权重
+     */
+    public double getEdgeWeight(String source, String target) {
+<span class="fc" id="L72">        DefaultWeightedEdge edge = graph.getEdge(source, target);</span>
+<span class="pc bpc" id="L73" title="1 of 2 branches missed.">        return edge != null ? graph.getEdgeWeight(edge) : 0.0;</span>
+    }
+    
+    /**
+     * 获取节点的入度邻居（影响该节点的节点）
+     */
+    public Set&lt;String&gt; getIncomingNeighbors(String nodeId) {
+<span class="nc" id="L80">        Set&lt;String&gt; neighbors = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L81">        Set&lt;DefaultWeightedEdge&gt; incomingEdges = graph.incomingEdgesOf(nodeId);</span>
+<span class="nc bnc" id="L82" title="All 2 branches missed.">        for (DefaultWeightedEdge edge : incomingEdges) {</span>
+<span class="nc" id="L83">            neighbors.add(graph.getEdgeSource(edge));</span>
+        }
+<span class="nc" id="L85">        return neighbors;</span>
+    }
+    
+    /**
+     * 获取节点的出度邻居（该节点影响的节点）
+     */
+    public Set&lt;String&gt; getOutgoingNeighbors(String nodeId) {
+<span class="nc" id="L92">        Set&lt;String&gt; neighbors = new HashSet&lt;&gt;();</span>
+<span class="nc" id="L93">        Set&lt;DefaultWeightedEdge&gt; outgoingEdges = graph.outgoingEdgesOf(nodeId);</span>
+<span class="nc bnc" id="L94" title="All 2 branches missed.">        for (DefaultWeightedEdge edge : outgoingEdges) {</span>
+<span class="nc" id="L95">            neighbors.add(graph.getEdgeTarget(edge));</span>
+        }
+<span class="nc" id="L97">        return neighbors;</span>
+    }
+    
+    /**
+     * 获取节点的入度
+     */
+    public int getInDegree(String nodeId) {
+<span class="nc" id="L104">        return graph.inDegreeOf(nodeId);</span>
+    }
+    
+    /**
+     * 获取节点的出度
+     */
+    public int getOutDegree(String nodeId) {
+<span class="nc" id="L111">        return graph.outDegreeOf(nodeId);</span>
+    }
+    
+    /**
+     * 获取网络统计信息
+     */
+    public Map&lt;String, Object&gt; getNetworkStatistics() {
+<span class="fc" id="L118">        Map&lt;String, Object&gt; stats = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L119">        stats.put(&quot;nodeCount&quot;, graph.vertexSet().size());</span>
+<span class="fc" id="L120">        stats.put(&quot;edgeCount&quot;, graph.edgeSet().size());</span>
+        
+        // 计算网络密度
+<span class="fc" id="L123">        int n = graph.vertexSet().size();</span>
+<span class="fc" id="L124">        int maxEdges = n * (n - 1);</span>
+<span class="pc bpc" id="L125" title="1 of 2 branches missed.">        stats.put(&quot;density&quot;, maxEdges &gt; 0 ? (double) graph.edgeSet().size() / maxEdges : 0.0);</span>
+        
+<span class="fc" id="L127">        stats.put(&quot;metadata&quot;, metadata);</span>
+<span class="fc" id="L128">        return stats;</span>
+    }
+    
+    /**
+     * 获取底层 JGraphT 图
+     */
+    public Graph&lt;String, DefaultWeightedEdge&gt; getGraph() {
+<span class="fc" id="L135">        return graph;</span>
+    }
+    
+    /**
+     * 设置元数据
+     */
+    public void setMetadata(Map&lt;String, Object&gt; metadata) {
+<span class="nc" id="L142">        this.metadata = metadata;</span>
+<span class="nc" id="L143">    }</span>
+    
+    public Map&lt;String, Object&gt; getMetadata() {
+<span class="fc" id="L146">        return metadata;</span>
+    }
+    
+    public void addMetadata(String key, Object value) {
+<span class="fc" id="L150">        this.metadata.put(key, value);</span>
+<span class="fc" id="L151">    }</span>
+    
+    public List&lt;EconomicIndicator&gt; getIndicators() {
+<span class="nc" id="L154">        return indicators;</span>
+    }
+    
+    @Override
+    public String toString() {
+<span class="nc" id="L159">        return &quot;NetworkGraph{&quot; +</span>
+<span class="nc" id="L160">                &quot;nodes=&quot; + graph.vertexSet().size() +</span>
+<span class="nc" id="L161">                &quot;, edges=&quot; + graph.edgeSet().size() +</span>
+                '}';
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

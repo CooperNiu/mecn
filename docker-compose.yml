@@ -1,0 +1,83 @@
+version: '3.8'
+
+# MECN Docker Compose 配置文件
+# Macro Economic Causal Network - 高维宏观经济因果网络联动模型
+
+services:
+  # MECN 应用服务
+  mecn-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: mecn:latest
+    container_name: mecn-application
+    ports:
+      - "8080:8080"
+    environment:
+      # JVM 配置
+      - JAVA_OPTS=-Xms512m -Xmx1024m -XX:+UseG1GC
+      # Spring Boot 配置
+      - SPRING_PROFILES_ACTIVE=prod
+      - SERVER_PORT=8080
+      # MECN 自定义配置
+      - MECN_LEGACY_MODE=false
+      - MECN_DEFAULT_DATA_SOURCE=simulated
+      - MECN_EDGE_THRESHOLD=0.08
+      - MECN_RIPPLE_TIME_STEPS=20
+      - MECN_DECAY_FACTOR=0.9
+    volumes:
+      # 日志文件挂载
+      - ./logs:/app/logs
+      # 配置文件挂载（可选）
+      - ./config/application-prod.yml:/app/config/application-prod.yml:ro
+    networks:
+      - mecn-network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8080/api/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Nginx 反向代理（可选）
+  mecn-nginx:
+    image: nginx:alpine
+    container_name: mecn-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      # Nginx 配置文件
+      - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      # SSL 证书（可选）
+      - ./docker/nginx/ssl:/etc/nginx/ssl:ro
+      # 静态资源（可选，直接由 Nginx 提供）
+      - ./src/main/resources/static:/usr/share/nginx/html:ro
+    depends_on:
+      - mecn-app
+    networks:
+      - mecn-network
+    restart: unless-stopped
+    profiles:
+      - with-nginx
+
+networks:
+  mecn-network:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# 卷声明（持久化数据）
+volumes:
+  logs:
+    driver: local

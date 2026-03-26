@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CausalMethod.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mecn</a> &gt; <a href="index.source.html" class="el_package">com.mecn.causal</a> &gt; <span class="el_source">CausalMethod.java</span></div><h1>CausalMethod.java</h1><pre class="source lang-java linenums">package com.mecn.causal;
+
+import java.util.Map;
+
+/**
+ * 因果方法抽象基类
+ * 
+ * 所有因果发现算法的父类
+ */
+public abstract class CausalMethod {
+    
+    protected String name;                      // 方法名称
+<span class="fc" id="L13">    protected double weight = 1.0;              // 方法权重（用于集成融合）</span>
+    protected Map&lt;String, Object&gt; parameters;   // 方法参数
+    
+<span class="fc" id="L16">    public CausalMethod(String name) {</span>
+<span class="fc" id="L17">        this.name = name;</span>
+<span class="fc" id="L18">        this.parameters = new java.util.HashMap&lt;&gt;();</span>
+<span class="fc" id="L19">    }</span>
+    
+    /**
+     * 设置方法权重
+     * 
+     * @param weight 权重值
+     * @return this method for chaining
+     */
+    public CausalMethod withWeight(double weight) {
+<span class="nc" id="L28">        this.weight = weight;</span>
+<span class="nc" id="L29">        return this;</span>
+    }
+    
+    /**
+     * 添加参数
+     * 
+     * @param key 参数键
+     * @param value 参数值
+     * @return this method for chaining
+     */
+    public CausalMethod withParam(String key, Object value) {
+<span class="nc" id="L40">        this.parameters.put(key, value);</span>
+<span class="nc" id="L41">        return this;</span>
+    }
+    
+    /**
+     * 计算因果矩阵
+     * 
+     * @param data 时间序列数据矩阵 [T][N]
+     * @param params 方法特定参数
+     * @return 因果矩阵，matrix[i][j] 表示 j → i 的因果影响
+     */
+    public abstract CausalMatrix compute(double[][] data, Map&lt;String, Object&gt; params);
+    
+    /**
+     * 获取特定因果关系的置信度
+     * 
+     * @param data 原始数据
+     * @param source 源节点索引
+     * @param target 目标节点索引
+     * @return 置信度 (0-1)
+     */
+    public abstract double getConfidence(double[][] data, int source, int target);
+    
+    /**
+     * 验证输入数据
+     * 
+     * @param data 数据矩阵
+     * @return true 如果数据有效
+     */
+    protected boolean validateData(double[][] data) {
+<span class="pc bpc" id="L70" title="2 of 4 branches missed.">        if (data == null || data.length &lt; 2) {</span>
+<span class="nc" id="L71">            return false;</span>
+        }
+        
+<span class="fc" id="L74">        int numCols = data[0].length;</span>
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        for (double[] row : data) {</span>
+<span class="pc bpc" id="L76" title="2 of 4 branches missed.">            if (row == null || row.length != numCols) {</span>
+<span class="nc" id="L77">                return false;</span>
+            }
+            // 检查 NaN 和无穷大
+<span class="fc bfc" id="L80" title="All 2 branches covered.">            for (double val : row) {</span>
+<span class="pc bpc" id="L81" title="2 of 4 branches missed.">                if (Double.isNaN(val) || Double.isInfinite(val)) {</span>
+<span class="nc" id="L82">                    return false;</span>
+                }
+            }
+        }
+        
+<span class="fc" id="L87">        return true;</span>
+    }
+    
+    // Getters and Setters
+    public String getName() {
+<span class="fc" id="L92">        return name;</span>
+    }
+    
+    public void setName(String name) {
+<span class="nc" id="L96">        this.name = name;</span>
+<span class="nc" id="L97">    }</span>
+    
+    public double getWeight() {
+<span class="fc" id="L100">        return weight;</span>
+    }
+    
+    public void setWeight(double weight) {
+<span class="nc" id="L104">        this.weight = weight;</span>
+<span class="nc" id="L105">    }</span>
+    
+    public Map&lt;String, Object&gt; getParameters() {
+<span class="nc" id="L108">        return parameters;</span>
+    }
+    
+    public void setParameters(Map&lt;String, Object&gt; parameters) {
+<span class="nc" id="L112">        this.parameters = parameters;</span>
+<span class="nc" id="L113">    }</span>
+    
+    public void setParameter(String key, Object value) {
+<span class="nc" id="L116">        this.parameters.put(key, value);</span>
+<span class="nc" id="L117">    }</span>
+    
+    public Object getParameter(String key) {
+<span class="nc" id="L120">        return this.parameters.get(key);</span>
+    }
+}
+
+/**
+ * 因果矩阵数据结构
+ */
+class CausalMatrix {
+    
+    double[][] matrix;                  // 因果影响强度矩阵（package-private）
+    double[][] pValues;                 // P 值矩阵（如果适用，package-private）
+    String methodName;                  // 方法名称
+    Map&lt;String, Object&gt; metadata;       // 元数据
+    
+<span class="fc" id="L134">    public CausalMatrix(int size, String methodName) {</span>
+<span class="fc" id="L135">        this.matrix = new double[size][size];</span>
+<span class="fc" id="L136">        this.pValues = new double[size][size];</span>
+<span class="fc" id="L137">        this.methodName = methodName;</span>
+<span class="fc" id="L138">        this.metadata = new java.util.HashMap&lt;&gt;();</span>
+<span class="fc" id="L139">    }</span>
+    
+    // Getters and Setters
+    public double[][] getMatrix() {
+<span class="fc" id="L143">        return matrix;</span>
+    }
+    
+    public void setMatrix(double[][] matrix) {
+<span class="nc" id="L147">        this.matrix = matrix;</span>
+<span class="nc" id="L148">    }</span>
+    
+    public double[][] getPValues() {
+<span class="nc" id="L151">        return pValues;</span>
+    }
+    
+    public void setPValues(double[][] pValues) {
+<span class="nc" id="L155">        this.pValues = pValues;</span>
+<span class="nc" id="L156">    }</span>
+    
+    public String getMethodName() {
+<span class="nc" id="L159">        return methodName;</span>
+    }
+    
+    public void setMethodName(String methodName) {
+<span class="nc" id="L163">        this.methodName = methodName;</span>
+<span class="nc" id="L164">    }</span>
+    
+    public Map&lt;String, Object&gt; getMetadata() {
+<span class="fc" id="L167">        return metadata;</span>
+    }
+    
+    public void setMetadata(Map&lt;String, Object&gt; metadata) {
+<span class="nc" id="L171">        this.metadata = metadata;</span>
+<span class="nc" id="L172">    }</span>
+    
+    /**
+     * 添加元数据
+     */
+    public void addMetadata(String key, Object value) {
+<span class="nc" id="L178">        this.metadata.put(key, value);</span>
+<span class="nc" id="L179">    }</span>
+    
+    /**
+     * 添加元数据（int 值）
+     */
+    public void addMetadata(String key, int value) {
+<span class="fc" id="L185">        this.metadata.put(key, value);</span>
+<span class="fc" id="L186">    }</span>
+    
+    /**
+     * 添加元数据（double 值）
+     */
+    public void addMetadata(String key, double value) {
+<span class="fc" id="L192">        this.metadata.put(key, value);</span>
+<span class="fc" id="L193">    }</span>
+    
+    /**
+     * 添加元数据（String 值）
+     */
+    public void addMetadata(String key, String value) {
+<span class="fc" id="L199">        this.metadata.put(key, value);</span>
+<span class="fc" id="L200">    }</span>
+    
+    /**
+     * 添加元数据（List 值）
+     */
+    public void addMetadata(String key, java.util.List&lt;?&gt; value) {
+<span class="fc" id="L206">        this.metadata.put(key, value);</span>
+<span class="fc" id="L207">    }</span>
+    
+    /**
+     * 设置某个位置的因果强度
+     */
+    public void setCausalEffect(int source, int target, double strength) {
+<span class="fc" id="L213">        this.matrix[target][source] = strength; // 注意：target 行，source 列</span>
+<span class="fc" id="L214">    }</span>
+    
+    /**
+     * 获取某个位置的因果强度
+     */
+    public double getCausalEffect(int source, int target) {
+<span class="fc" id="L220">        return this.matrix[target][source];</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

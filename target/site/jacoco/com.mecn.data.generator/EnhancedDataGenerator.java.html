@@ -1,0 +1,264 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EnhancedDataGenerator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mecn</a> &gt; <a href="index.source.html" class="el_package">com.mecn.data.generator</a> &gt; <span class="el_source">EnhancedDataGenerator.java</span></div><h1>EnhancedDataGenerator.java</h1><pre class="source lang-java linenums">package com.mecn.data.generator;
+
+import com.mecn.model.EconomicIndicator;
+import com.mecn.model.TimeSeriesData;
+
+import java.time.LocalDate;
+import java.util.*;
+
+/**
+ * 增强版模拟数据生成器
+ * 
+ * 基于现有 MacroEconomicNetwork 的逻辑，加入更多经济学合理性约束
+ */
+public class EnhancedDataGenerator {
+    
+    // 配置参数
+    private static final int NUM_INDICATORS = 40;  // 40 个常规经济指标
+    private static final int NUM_PERIODS = 150;     // 150 个月度历史数据
+    private static final long DEFAULT_SEED = 42;    // 固定种子保证可复现
+    
+    // 经济周期参数
+    private static final double BUSINESS_CYCLE_AMPLITUDE = 2.0;  // 经济周期振幅
+    private static final int BUSINESS_CYCLE_PERIOD = 40;         // 经济周期长度（月）
+    
+    private final Random random;
+    private final List&lt;EconomicIndicator&gt; indicators;
+    
+    public EnhancedDataGenerator() {
+<span class="nc" id="L29">        this(DEFAULT_SEED);</span>
+<span class="nc" id="L30">    }</span>
+    
+<span class="fc" id="L32">    public EnhancedDataGenerator(long seed) {</span>
+<span class="fc" id="L33">        this.random = new Random(seed);</span>
+<span class="fc" id="L34">        this.indicators = createIndicators();</span>
+<span class="fc" id="L35">    }</span>
+    
+    /**
+     * 创建经济指标列表
+     */
+    private List&lt;EconomicIndicator&gt; createIndicators() {
+<span class="fc" id="L41">        List&lt;EconomicIndicator&gt; indicators = new ArrayList&lt;&gt;(NUM_INDICATORS);</span>
+<span class="fc" id="L42">        int idx = 0;</span>
+        
+        // 10 个大宗商品指标 (CMD_0 - CMD_9)
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i++) {</span>
+<span class="fc" id="L46">            EconomicIndicator indicator = new EconomicIndicator(&quot;CMD_&quot; + i, &quot;Commodity Index &quot; + i);</span>
+<span class="fc" id="L47">            indicator.setSource(&quot;SIMULATED&quot;);</span>
+<span class="fc" id="L48">            indicator.setFrequency(EconomicIndicator.Frequency.MONTHLY);</span>
+<span class="fc" id="L49">            indicator.setUnit(EconomicIndicator.Unit.INDEX_POINTS);</span>
+<span class="fc" id="L50">            indicator.addMetadata(&quot;category&quot;, &quot;commodity&quot;);</span>
+<span class="fc" id="L51">            indicators.add(indicator);</span>
+        }
+        
+        // 15 个宏观指标 (MACRO_0 - MACRO_14)
+<span class="fc bfc" id="L55" title="All 2 branches covered.">        for (int i = 0; i &lt; 15; i++) {</span>
+<span class="fc" id="L56">            EconomicIndicator indicator = new EconomicIndicator(&quot;MACRO_&quot; + i, &quot;Macro Indicator &quot; + i);</span>
+<span class="fc" id="L57">            indicator.setSource(&quot;SIMULATED&quot;);</span>
+<span class="fc" id="L58">            indicator.setFrequency(EconomicIndicator.Frequency.MONTHLY);</span>
+<span class="fc" id="L59">            indicator.setUnit(EconomicIndicator.Unit.PERCENT);</span>
+<span class="fc" id="L60">            indicator.addMetadata(&quot;category&quot;, &quot;macro&quot;);</span>
+<span class="fc" id="L61">            indicators.add(indicator);</span>
+        }
+        
+        // 10 个金融市场指标 (FIN_0 - FIN_9)
+<span class="fc bfc" id="L65" title="All 2 branches covered.">        for (int i = 0; i &lt; 10; i++) {</span>
+<span class="fc" id="L66">            EconomicIndicator indicator = new EconomicIndicator(&quot;FIN_&quot; + i, &quot;Financial Indicator &quot; + i);</span>
+<span class="fc" id="L67">            indicator.setSource(&quot;SIMULATED&quot;);</span>
+<span class="fc" id="L68">            indicator.setFrequency(EconomicIndicator.Frequency.MONTHLY);</span>
+<span class="fc" id="L69">            indicator.setUnit(EconomicIndicator.Unit.RATIO);</span>
+<span class="fc" id="L70">            indicator.addMetadata(&quot;category&quot;, &quot;financial&quot;);</span>
+<span class="fc" id="L71">            indicators.add(indicator);</span>
+        }
+        
+        // 5 个就业指标 (EMPL_0 - EMPL_4)
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        for (int i = 0; i &lt; 5; i++) {</span>
+<span class="fc" id="L76">            EconomicIndicator indicator = new EconomicIndicator(&quot;EMPL_&quot; + i, &quot;Employment Indicator &quot; + i);</span>
+<span class="fc" id="L77">            indicator.setSource(&quot;SIMULATED&quot;);</span>
+<span class="fc" id="L78">            indicator.setFrequency(EconomicIndicator.Frequency.MONTHLY);</span>
+<span class="fc" id="L79">            indicator.setUnit(EconomicIndicator.Unit.PERCENT);</span>
+<span class="fc" id="L80">            indicator.addMetadata(&quot;category&quot;, &quot;employment&quot;);</span>
+<span class="fc" id="L81">            indicators.add(indicator);</span>
+        }
+        
+<span class="fc" id="L84">        return indicators;</span>
+    }
+    
+    /**
+     * 生成模拟经济数据（固定规模）
+     * 
+     * @return 时间序列数据矩阵 [NUM_PERIODS][NUM_INDICATORS]
+     */
+    public double[][] generateData() {
+<span class="fc" id="L93">        return generateData(NUM_PERIODS, NUM_INDICATORS);</span>
+    }
+    
+    /**
+     * 生成指定样本量的模拟数据（用于性能测试）
+     * 
+     * @param sampleSize 样本量（期数）
+     * @return 时间序列数据矩阵
+     */
+    public double[][] generateDataForSampleSize(int sampleSize) {
+<span class="fc" id="L103">        int numIndicators = Math.max(5, sampleSize / 10);</span>
+<span class="fc" id="L104">        return generateData(sampleSize, numIndicators);</span>
+    }
+    
+    /**
+     * 生成模拟经济数据
+     * 
+     * @param numPeriods 期数
+     * @param numIndicators 指标数
+     * @return 时间序列数据矩阵
+     */
+    private double[][] generateData(int numPeriods, int numIndicators) {
+<span class="fc" id="L115">        double[][] data = new double[numPeriods][numIndicators];</span>
+        
+        // 初始化基期值（加入更多经济学约束）
+<span class="fc bfc" id="L118" title="All 2 branches covered.">        for (int j = 0; j &lt; numIndicators; j++) {</span>
+<span class="fc" id="L119">            data[0][j] = initializeBaseline(j);</span>
+        }
+        
+        // 生成带自回归、交叉关联和经济周期的时间序列
+<span class="fc bfc" id="L123" title="All 2 branches covered.">        for (int t = 1; t &lt; numPeriods; t++) {</span>
+            // 计算当前时期的经济周期位置
+<span class="fc" id="L125">            double cycleComponent = BUSINESS_CYCLE_AMPLITUDE * </span>
+<span class="fc" id="L126">                Math.sin(2 * Math.PI * t / BUSINESS_CYCLE_PERIOD);</span>
+            
+<span class="fc bfc" id="L128" title="All 2 branches covered.">            for (int i = 0; i &lt; numIndicators; i++) {</span>
+                // 自回归项（经济惯性）
+<span class="fc" id="L130">                double autoReg = 0.8 * data[t - 1][i];</span>
+                
+                // 随机冲击项
+<span class="fc" id="L133">                double shock = random.nextGaussian() * 0.5;</span>
+                
+                // 构造部分指标间的强关联（例如前 5 个指标是大宗商品，影响中间 10 个宏观指标）
+<span class="pc bpc" id="L136" title="1 of 6 branches missed.">                if (i &gt;= 10 &amp;&amp; i &lt; 25 &amp;&amp; numIndicators &gt; 10) {</span>
+                    // 大宗商品对宏观指标的传导效应（滞后 1 期）
+<span class="fc bfc" id="L138" title="All 2 branches covered.">                    for (int k = 0; k &lt; Math.min(5, numIndicators); k++) {</span>
+<span class="fc" id="L139">                        autoReg += 0.06 * data[t - 1][k]; // 模拟上游对下游的传导</span>
+                    }
+                }
+                
+                // 宏观指标之间的相互影响
+<span class="pc bpc" id="L144" title="1 of 6 branches missed.">                if (i &gt;= 15 &amp;&amp; i &lt; 25 &amp;&amp; numIndicators &gt; 15) {</span>
+<span class="fc" id="L145">                    autoReg += 0.03 * data[t - 1][10]; // 受第一个宏观指标影响</span>
+                }
+                
+                // 金融市场对宏观经济的反馈
+<span class="pc bpc" id="L149" title="1 of 6 branches missed.">                if (i &gt;= 25 &amp;&amp; i &lt; 35 &amp;&amp; numIndicators &gt; 25) {</span>
+<span class="fc" id="L150">                    autoReg += 0.02 * data[t - 1][12]; // 受宏观指标影响</span>
+                }
+                
+                // 加入经济周期成分
+<span class="fc" id="L154">                double cycleEffect = cycleComponent * (0.5 + 0.5 * (i % 5) / 5.0);</span>
+                
+<span class="fc" id="L156">                data[t][i] = autoReg + shock + cycleEffect;</span>
+            }
+        }
+        
+<span class="fc" id="L160">        return data;</span>
+    }
+    
+    /**
+     * 初始化基期值
+     * 
+     * 根据指标类型设置不同的初始值范围
+     */
+    private double initializeBaseline(int indicatorIndex) {
+<span class="fc" id="L169">        int category = indicatorIndex / 10;</span>
+        
+<span class="pc bpc" id="L171" title="1 of 5 branches missed.">        switch (category) {</span>
+            case 0: // 大宗商品 (CMD)
+<span class="fc" id="L173">                return 50 + random.nextGaussian() * 5; // 基准 50</span>
+            case 1: // 宏观指标 (MACRO)
+<span class="fc" id="L175">                return 3 + random.nextGaussian() * 0.5; // 基准 3%（类似通胀率）</span>
+            case 2: // 金融市场 (FIN)
+<span class="fc" id="L177">                return 100 + random.nextGaussian() * 10; // 基准 100（指数）</span>
+            case 3: // 就业指标 (EMPL)
+<span class="fc" id="L179">                return 5 + random.nextGaussian() * 0.3; // 基准 5%（失业率）</span>
+            default:
+<span class="nc" id="L181">                return random.nextGaussian() * 5;</span>
+        }
+    }
+    
+    /**
+     * 生成 TimeSeriesData 列表
+     * 
+     * @param startDate 开始日期
+     * @param endDate 结束日期
+     * @return 时间序列数据列表
+     */
+    public List&lt;TimeSeriesData&gt; generateTimeSeriesData(LocalDate startDate, LocalDate endDate) {
+<span class="nc" id="L193">        double[][] data = generateData();</span>
+<span class="nc" id="L194">        List&lt;TimeSeriesData&gt; result = new ArrayList&lt;&gt;(NUM_INDICATORS);</span>
+        
+        // 计算月份数
+<span class="nc" id="L197">        int months = (endDate.getYear() - startDate.getYear()) * 12 + </span>
+<span class="nc" id="L198">                     (endDate.getMonthValue() - startDate.getMonthValue()) + 1;</span>
+        
+        // 确保有足够的月份
+<span class="nc bnc" id="L201" title="All 2 branches missed.">        if (months &gt; NUM_PERIODS) {</span>
+<span class="nc" id="L202">            throw new IllegalArgumentException(</span>
+<span class="nc" id="L203">                &quot;Requested period (&quot; + months + &quot; months) exceeds maximum available data (&quot; + NUM_PERIODS + &quot; months)&quot;</span>
+            );
+        }
+        
+        // 预先创建日期数组
+<span class="nc" id="L208">        LocalDate[] allDates = new LocalDate[months];</span>
+<span class="nc" id="L209">        LocalDate d = startDate;</span>
+<span class="nc bnc" id="L210" title="All 2 branches missed.">        for (int m = 0; m &lt; months; m++) {</span>
+<span class="nc" id="L211">            allDates[m] = d;</span>
+<span class="nc" id="L212">            d = d.plusMonths(1);</span>
+        }
+        
+        // 为每个指标创建时间序列
+<span class="nc bnc" id="L216" title="All 2 branches missed.">        for (int i = 0; i &lt; NUM_INDICATORS; i++) {</span>
+<span class="nc" id="L217">            TimeSeriesData ts = new TimeSeriesData(</span>
+<span class="nc" id="L218">                indicators.get(i).getCode(),</span>
+<span class="nc" id="L219">                months,</span>
+<span class="nc" id="L220">                allDates.clone()</span>
+            );
+            
+            // 复制数据
+<span class="nc" id="L224">            double[] values = new double[months];</span>
+<span class="nc bnc" id="L225" title="All 2 branches missed.">            for (int t = 0; t &lt; months; t++) {</span>
+<span class="nc" id="L226">                values[t] = data[t][i];</span>
+            }
+<span class="nc" id="L228">            ts.setValues(values);</span>
+            
+<span class="nc" id="L230">            result.add(ts);</span>
+        }
+        
+        // 添加元数据
+<span class="nc bnc" id="L234" title="All 2 branches missed.">        for (TimeSeriesData ts : result) {</span>
+<span class="nc" id="L235">            ts.addMetadata(&quot;generated&quot;, true);</span>
+<span class="nc" id="L236">            ts.addMetadata(&quot;seed&quot;, DEFAULT_SEED);</span>
+<span class="nc" id="L237">            ts.addMetadata(&quot;method&quot;, &quot;enhanced_simulation&quot;);</span>
+        }
+        
+<span class="nc" id="L240">        return result;</span>
+    }
+    
+    /**
+     * 获取支持的指标列表
+     */
+    public List&lt;EconomicIndicator&gt; getSupportedIndicators() {
+<span class="fc" id="L247">        return new ArrayList&lt;&gt;(indicators);</span>
+    }
+    
+    /**
+     * 获取数据生成器配置信息
+     */
+    public Map&lt;String, Object&gt; getConfigInfo() {
+<span class="fc" id="L254">        Map&lt;String, Object&gt; config = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L255">        config.put(&quot;numIndicators&quot;, NUM_INDICATORS);</span>
+<span class="fc" id="L256">        config.put(&quot;numPeriods&quot;, NUM_PERIODS);</span>
+<span class="fc" id="L257">        config.put(&quot;seed&quot;, DEFAULT_SEED);</span>
+<span class="fc" id="L258">        config.put(&quot;businessCycleAmplitude&quot;, BUSINESS_CYCLE_AMPLITUDE);</span>
+<span class="fc" id="L259">        config.put(&quot;businessCyclePeriod&quot;, BUSINESS_CYCLE_PERIOD);</span>
+<span class="fc" id="L260">        config.put(&quot;categories&quot;, Arrays.asList(&quot;commodity&quot;, &quot;macro&quot;, &quot;financial&quot;, &quot;employment&quot;));</span>
+<span class="fc" id="L261">        return config;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

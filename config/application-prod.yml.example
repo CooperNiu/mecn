@@ -1,0 +1,67 @@
+# MECN 生产环境配置示例
+# 复制此文件为 application-prod.yml 并根据需要修改
+
+spring:
+  application:
+    name: mecn-production
+  
+  mvc:
+    static-path-pattern: /**
+  
+  resources:
+    static-locations: classpath:/static/
+
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  
+  # Tomcat 配置
+  tomcat:
+    max-threads: 200
+    min-spare-threads: 10
+    connection-timeout: 20000
+    accept-count: 100
+
+mecn:
+  legacy-mode: false
+  default-data-source: simulated
+  causal-methods:
+    - lasso
+    - granger
+    - pcmci
+  max-visualization-nodes: 100
+  ripple-time-steps: 20
+  decay-factor: 0.9
+  edge-threshold: 0.08
+
+# 日志配置
+logging:
+  level:
+    root: WARN
+    com.mecn: INFO
+    org.springframework.web: WARN
+  file:
+    name: /app/logs/mecn.log
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n"
+
+# Actuator 监控端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: when-authorized
+  info:
+    env:
+      enabled: true
+
+# 性能监控
+metrics:
+  export:
+    prometheus:
+      enabled: true

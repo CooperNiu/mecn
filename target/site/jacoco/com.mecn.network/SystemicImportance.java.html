@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SystemicImportance.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mecn</a> &gt; <a href="index.source.html" class="el_package">com.mecn.network</a> &gt; <span class="el_source">SystemicImportance.java</span></div><h1>SystemicImportance.java</h1><pre class="source lang-java linenums">package com.mecn.network;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * 系统重要性机构识别结果
+ */
+public class SystemicImportance {
+    
+    private String nodeId;                      // 节点 ID
+    private double importanceScore;             // 重要性得分
+    private double networkEfficiencyLoss;       // 移除后网络效率损失
+    private int affectedNodesCount;             // 影响的节点数量
+    private Map&lt;String, Object&gt; metadata;       // 元数据
+    
+<span class="fc" id="L17">    public SystemicImportance(String nodeId) {</span>
+<span class="fc" id="L18">        this.nodeId = nodeId;</span>
+<span class="fc" id="L19">        this.metadata = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L20">    }</span>
+    
+    // Getters and Setters
+    public String getNodeId() {
+<span class="fc" id="L24">        return nodeId;</span>
+    }
+    
+    public void setNodeId(String nodeId) {
+<span class="nc" id="L28">        this.nodeId = nodeId;</span>
+<span class="nc" id="L29">    }</span>
+    
+    public double getImportanceScore() {
+<span class="fc" id="L32">        return importanceScore;</span>
+    }
+    
+    public void setImportanceScore(double importanceScore) {
+<span class="fc" id="L36">        this.importanceScore = importanceScore;</span>
+<span class="fc" id="L37">    }</span>
+    
+    public double getNetworkEfficiencyLoss() {
+<span class="nc" id="L40">        return networkEfficiencyLoss;</span>
+    }
+    
+    public void setNetworkEfficiencyLoss(double networkEfficiencyLoss) {
+<span class="fc" id="L44">        this.networkEfficiencyLoss = networkEfficiencyLoss;</span>
+<span class="fc" id="L45">    }</span>
+    
+    public int getAffectedNodesCount() {
+<span class="nc" id="L48">        return affectedNodesCount;</span>
+    }
+    
+    public void setAffectedNodesCount(int affectedNodesCount) {
+<span class="fc" id="L52">        this.affectedNodesCount = affectedNodesCount;</span>
+<span class="fc" id="L53">    }</span>
+    
+    public Map&lt;String, Object&gt; getMetadata() {
+<span class="nc" id="L56">        return metadata;</span>
+    }
+    
+    public void setMetadata(Map&lt;String, Object&gt; metadata) {
+<span class="nc" id="L60">        this.metadata = metadata;</span>
+<span class="nc" id="L61">    }</span>
+    
+    @Override
+    public String toString() {
+<span class="nc" id="L65">        return &quot;SystemicImportance{&quot; +</span>
+<span class="nc" id="L66">                &quot;nodeId='&quot; + nodeId + '\'' +</span>
+<span class="nc" id="L67">                &quot;, score=&quot; + String.format(&quot;%.4f&quot;, importanceScore) +</span>
+<span class="nc" id="L68">                &quot;, efficiencyLoss=&quot; + String.format(&quot;%.4f&quot;, networkEfficiencyLoss) +</span>
+                '}';
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

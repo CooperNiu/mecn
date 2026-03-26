@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>DiagnosticReport.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mecn</a> &gt; <a href="index.source.html" class="el_package">com.mecn.diagnosis</a> &gt; <span class="el_source">DiagnosticReport.java</span></div><h1>DiagnosticReport.java</h1><pre class="source lang-java linenums">package com.mecn.diagnosis;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * 诊断报告 - 因果发现结果的质量评估
+ * 
+ * 提供数据质量、结果可靠性、统计显著性等维度的综合诊断
+ */
+public class DiagnosticReport {
+    
+    private final OverallScore overallScore;        // 总体评分
+    private final List&lt;QualityMetric&gt; metrics;      // 质量指标列表
+    private final List&lt;Warning&gt; warnings;           // 警告列表
+    private final List&lt;Recommendation&gt; recommendations; // 建议列表
+    private final String summary;                   // 诊断摘要
+    
+<span class="nc" id="L20">    private DiagnosticReport(Builder builder) {</span>
+<span class="nc" id="L21">        this.overallScore = builder.overallScore;</span>
+<span class="nc" id="L22">        this.metrics = builder.metrics;</span>
+<span class="nc" id="L23">        this.warnings = builder.warnings;</span>
+<span class="nc" id="L24">        this.recommendations = builder.recommendations;</span>
+<span class="nc" id="L25">        this.summary = builder.summary;</span>
+<span class="nc" id="L26">    }</span>
+    
+    /**
+     * 总体评分等级
+     */
+<span class="nc" id="L31">    public enum OverallScore {</span>
+<span class="nc" id="L32">        EXCELLENT(90, 100, &quot;优秀&quot;, &quot;因果发现结果非常可靠&quot;),</span>
+<span class="nc" id="L33">        GOOD(75, 89, &quot;良好&quot;, &quot;因果发现结果较为可靠&quot;),</span>
+<span class="nc" id="L34">        FAIR(60, 74, &quot;一般&quot;, &quot;因果发现结果需谨慎解读&quot;),</span>
+<span class="nc" id="L35">        POOR(0, 59, &quot;较差&quot;, &quot;因果发现结果可靠性低&quot;);</span>
+        
+        private final int minScore;
+        private final int maxScore;
+        private final String label;
+        private final String description;
+        
+<span class="nc" id="L42">        OverallScore(int minScore, int maxScore, String label, String description) {</span>
+<span class="nc" id="L43">            this.minScore = minScore;</span>
+<span class="nc" id="L44">            this.maxScore = maxScore;</span>
+<span class="nc" id="L45">            this.label = label;</span>
+<span class="nc" id="L46">            this.description = description;</span>
+<span class="nc" id="L47">        }</span>
+        
+        public static OverallScore fromScore(int score) {
+<span class="nc bnc" id="L50" title="All 2 branches missed.">            for (OverallScore s : values()) {</span>
+<span class="nc bnc" id="L51" title="All 4 branches missed.">                if (score &gt;= s.minScore &amp;&amp; score &lt;= s.maxScore) {</span>
+<span class="nc" id="L52">                    return s;</span>
+                }
+            }
+<span class="nc" id="L55">            return POOR;</span>
+        }
+        
+        public String getLabel() {
+<span class="nc" id="L59">            return label;</span>
+        }
+        
+        public String getDescription() {
+<span class="nc" id="L63">            return description;</span>
+        }
+    }
+    
+    /**
+     * 质量指标
+     */
+    public static class QualityMetric {
+        private final String name;
+        private final double value;
+        private final String description;
+        private final Severity status;
+        
+<span class="nc" id="L76">        public QualityMetric(String name, double value, String description, Severity status) {</span>
+<span class="nc" id="L77">            this.name = name;</span>
+<span class="nc" id="L78">            this.value = value;</span>
+<span class="nc" id="L79">            this.description = description;</span>
+<span class="nc" id="L80">            this.status = status;</span>
+<span class="nc" id="L81">        }</span>
+        
+        public String getName() {
+<span class="nc" id="L84">            return name;</span>
+        }
+        
+        public double getValue() {
+<span class="nc" id="L88">            return value;</span>
+        }
+        
+        public String getDescription() {
+<span class="nc" id="L92">            return description;</span>
+        }
+        
+        public Severity getStatus() {
+<span class="nc" id="L96">            return status;</span>
+        }
+    }
+    
+    /**
+     * 警告信息
+     */
+    public static class Warning {
+        private final String code;
+        private final String message;
+        private final Severity severity;
+        private final String affectedComponent;
+        
+<span class="nc" id="L109">        public Warning(String code, String message, Severity severity, String affectedComponent) {</span>
+<span class="nc" id="L110">            this.code = code;</span>
+<span class="nc" id="L111">            this.message = message;</span>
+<span class="nc" id="L112">            this.severity = severity;</span>
+<span class="nc" id="L113">            this.affectedComponent = affectedComponent;</span>
+<span class="nc" id="L114">        }</span>
+        
+        public String getCode() {
+<span class="nc" id="L117">            return code;</span>
+        }
+        
+        public String getMessage() {
+<span class="nc" id="L121">            return message;</span>
+        }
+        
+        public Severity getSeverity() {
+<span class="nc" id="L125">            return severity;</span>
+        }
+        
+        public String getAffectedComponent() {
+<span class="nc" id="L129">            return affectedComponent;</span>
+        }
+    }
+    
+    /**
+     * 建议信息
+     */
+    public static class Recommendation {
+        private final String title;
+        private final String description;
+        private final Priority priority;
+        private final String relatedWarning;
+        
+<span class="nc" id="L142">        public Recommendation(String title, String description, Priority priority, String relatedWarning) {</span>
+<span class="nc" id="L143">            this.title = title;</span>
+<span class="nc" id="L144">            this.description = description;</span>
+<span class="nc" id="L145">            this.priority = priority;</span>
+<span class="nc" id="L146">            this.relatedWarning = relatedWarning;</span>
+<span class="nc" id="L147">        }</span>
+        
+        public String getTitle() {
+<span class="nc" id="L150">            return title;</span>
+        }
+        
+        public String getDescription() {
+<span class="nc" id="L154">            return description;</span>
+        }
+        
+        public Priority getPriority() {
+<span class="nc" id="L158">            return priority;</span>
+        }
+        
+        public String getRelatedWarning() {
+<span class="nc" id="L162">            return relatedWarning;</span>
+        }
+    }
+    
+    /**
+     * 严重程度
+     */
+<span class="nc" id="L169">    public enum Severity {</span>
+<span class="nc" id="L170">        CRITICAL(&quot;严重&quot;, &quot;需要立即处理&quot;),</span>
+<span class="nc" id="L171">        HIGH(&quot;高&quot;, &quot;建议尽快处理&quot;),</span>
+<span class="nc" id="L172">        MEDIUM(&quot;中&quot;, &quot;需要关注&quot;),</span>
+<span class="nc" id="L173">        LOW(&quot;低&quot;, &quot;可选优化&quot;),</span>
+<span class="nc" id="L174">        INFO(&quot;信息&quot;, &quot;仅供参考&quot;);</span>
+        
+        private final String label;
+        private final String description;
+        
+<span class="nc" id="L179">        Severity(String label, String description) {</span>
+<span class="nc" id="L180">            this.label = label;</span>
+<span class="nc" id="L181">            this.description = description;</span>
+<span class="nc" id="L182">        }</span>
+        
+        public String getLabel() {
+<span class="nc" id="L185">            return label;</span>
+        }
+        
+        public String getDescription() {
+<span class="nc" id="L189">            return description;</span>
+        }
+    }
+    
+    /**
+     * 优先级
+     */
+<span class="nc" id="L196">    public enum Priority {</span>
+<span class="nc" id="L197">        HIGH(&quot;高&quot;, &quot;优先处理&quot;),</span>
+<span class="nc" id="L198">        MEDIUM(&quot;中&quot;, &quot;适当处理&quot;),</span>
+<span class="nc" id="L199">        LOW(&quot;低&quot;, &quot;可选处理&quot;);</span>
+        
+        private final String label;
+        private final String description;
+        
+<span class="nc" id="L204">        Priority(String label, String description) {</span>
+<span class="nc" id="L205">            this.label = label;</span>
+<span class="nc" id="L206">            this.description = description;</span>
+<span class="nc" id="L207">        }</span>
+        
+        public String getLabel() {
+<span class="nc" id="L210">            return label;</span>
+        }
+        
+        public String getDescription() {
+<span class="nc" id="L214">            return description;</span>
+        }
+    }
+    
+    public OverallScore getOverallScore() {
+<span class="nc" id="L219">        return overallScore;</span>
+    }
+    
+    public List&lt;QualityMetric&gt; getMetrics() {
+<span class="nc" id="L223">        return metrics;</span>
+    }
+    
+    public List&lt;Warning&gt; getWarnings() {
+<span class="nc" id="L227">        return warnings;</span>
+    }
+    
+    public List&lt;Recommendation&gt; getRecommendations() {
+<span class="nc" id="L231">        return recommendations;</span>
+    }
+    
+    public String getSummary() {
+<span class="nc" id="L235">        return summary;</span>
+    }
+    
+    /**
+     * 生成详细诊断报告文本
+     */
+    public String toDetailedReport() {
+<span class="nc" id="L242">        StringBuilder sb = new StringBuilder();</span>
+        
+<span class="nc" id="L244">        sb.append(&quot;=== 因果发现诊断报告 ===\n\n&quot;);</span>
+        
+        // 总体评分
+<span class="nc" id="L247">        sb.append(&quot;【总体评分】: &quot;).append(overallScore.getLabel())</span>
+<span class="nc" id="L248">          .append(&quot; (&quot;).append(overallScore.getDescription()).append(&quot;)\n\n&quot;);</span>
+        
+        // 质量指标
+<span class="nc" id="L251">        sb.append(&quot;【质量指标】:\n&quot;);</span>
+<span class="nc bnc" id="L252" title="All 2 branches missed.">        for (QualityMetric metric : metrics) {</span>
+<span class="nc" id="L253">            sb.append(String.format(&quot;  - %s: %.2f [%s] - %s\n&quot;,</span>
+<span class="nc" id="L254">                metric.getName(), metric.getValue(),</span>
+<span class="nc" id="L255">                metric.getStatus().getLabel(), metric.getDescription()));</span>
+        }
+<span class="nc" id="L257">        sb.append(&quot;\n&quot;);</span>
+        
+        // 警告信息
+<span class="nc bnc" id="L260" title="All 2 branches missed.">        if (!warnings.isEmpty()) {</span>
+<span class="nc" id="L261">            sb.append(&quot;【警告信息】:\n&quot;);</span>
+<span class="nc bnc" id="L262" title="All 2 branches missed.">            for (Warning warning : warnings) {</span>
+<span class="nc" id="L263">                sb.append(String.format(&quot;  [%s] %s: %s (影响：%s)\n&quot;,</span>
+<span class="nc" id="L264">                    warning.getSeverity().getLabel(), warning.getCode(),</span>
+<span class="nc" id="L265">                    warning.getMessage(), warning.getAffectedComponent()));</span>
+            }
+<span class="nc" id="L267">            sb.append(&quot;\n&quot;);</span>
+        }
+        
+        // 建议
+<span class="nc bnc" id="L271" title="All 2 branches missed.">        if (!recommendations.isEmpty()) {</span>
+<span class="nc" id="L272">            sb.append(&quot;【改进建议】:\n&quot;);</span>
+<span class="nc bnc" id="L273" title="All 2 branches missed.">            for (Recommendation rec : recommendations) {</span>
+<span class="nc" id="L274">                sb.append(String.format(&quot;  [%s] %s: %s\n&quot;,</span>
+<span class="nc" id="L275">                    rec.getPriority().getLabel(), rec.getTitle(), rec.getDescription()));</span>
+            }
+<span class="nc" id="L277">            sb.append(&quot;\n&quot;);</span>
+        }
+        
+        // 摘要
+<span class="nc" id="L281">        sb.append(&quot;【诊断摘要】\n&quot;).append(summary).append(&quot;\n&quot;);</span>
+        
+<span class="nc" id="L283">        return sb.toString();</span>
+    }
+    
+    @Override
+    public String toString() {
+<span class="nc" id="L288">        return String.format(&quot;DiagnosticReport{score=%s, metrics=%d, warnings=%d, recommendations=%d}&quot;,</span>
+<span class="nc" id="L289">            overallScore.getLabel(), metrics.size(), warnings.size(), recommendations.size());</span>
+    }
+    
+    /**
+     * Builder 模式构建诊断报告
+     */
+<span class="nc" id="L295">    public static class Builder {</span>
+        private OverallScore overallScore;
+<span class="nc" id="L297">        private final List&lt;QualityMetric&gt; metrics = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L298">        private final List&lt;Warning&gt; warnings = new ArrayList&lt;&gt;();</span>
+<span class="nc" id="L299">        private final List&lt;Recommendation&gt; recommendations = new ArrayList&lt;&gt;();</span>
+        private String summary;
+        
+        public Builder overallScore(OverallScore score) {
+<span class="nc" id="L303">            this.overallScore = score;</span>
+<span class="nc" id="L304">            return this;</span>
+        }
+        
+        public Builder addMetric(QualityMetric metric) {
+<span class="nc" id="L308">            this.metrics.add(metric);</span>
+<span class="nc" id="L309">            return this;</span>
+        }
+        
+        public Builder addWarning(Warning warning) {
+<span class="nc" id="L313">            this.warnings.add(warning);</span>
+<span class="nc" id="L314">            return this;</span>
+        }
+        
+        public Builder addRecommendation(Recommendation recommendation) {
+<span class="nc" id="L318">            this.recommendations.add(recommendation);</span>
+<span class="nc" id="L319">            return this;</span>
+        }
+        
+        public Builder summary(String summary) {
+<span class="nc" id="L323">            this.summary = summary;</span>
+<span class="nc" id="L324">            return this;</span>
+        }
+        
+        public Builder metrics(List&lt;QualityMetric&gt; metrics) {
+<span class="nc" id="L328">            this.metrics.addAll(metrics);</span>
+<span class="nc" id="L329">            return this;</span>
+        }
+        
+        public Builder warnings(List&lt;Warning&gt; warnings) {
+<span class="nc" id="L333">            this.warnings.addAll(warnings);</span>
+<span class="nc" id="L334">            return this;</span>
+        }
+        
+        public Builder recommendations(List&lt;Recommendation&gt; recommendations) {
+<span class="nc" id="L338">            this.recommendations.addAll(recommendations);</span>
+<span class="nc" id="L339">            return this;</span>
+        }
+        
+        public DiagnosticReport build() {
+<span class="nc" id="L343">            Objects.requireNonNull(overallScore, &quot;Overall score is required&quot;);</span>
+<span class="nc" id="L344">            return new DiagnosticReport(this);</span>
+        }
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

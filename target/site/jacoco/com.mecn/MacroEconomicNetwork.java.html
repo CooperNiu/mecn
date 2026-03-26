@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>MacroEconomicNetwork.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mecn</a> &gt; <a href="index.source.html" class="el_package">com.mecn</a> &gt; <span class="el_source">MacroEconomicNetwork.java</span></div><h1>MacroEconomicNetwork.java</h1><pre class="source lang-java linenums">package com.mecn;
+
+import com.mecn.causal.CausalConfig;
+import com.mecn.causal.CausalEngineImpl;
+import com.mecn.causal.CausalResult;
+import com.mecn.causal.LassoRegression;
+import com.mecn.data.generator.EnhancedDataGenerator;
+import com.mecn.model.NetworkGraph;
+import com.mecn.network.NetworkBuilder;
+
+/**
+ * 宏观经济网络分析 - 简化的入口（移除 Swing 依赖）
+ * 
+ * 演示 MECN 核心功能，输出到控制台
+ */
+<span class="nc" id="L16">public class MacroEconomicNetwork {</span>
+    
+    // 配置参数（与原版一致）
+    private static final int NUM_INDICATORS = 40;
+    private static final int NUM_PERIODS = 150;
+    private static final double EDGE_THRESHOLD = 0.08;
+    
+    public static void main(String[] args) {
+<span class="nc" id="L24">        System.out.println(&quot;=&quot;.repeat(60));</span>
+<span class="nc" id="L25">        System.out.println(&quot;MECN - 高维宏观经济因果网络联动模型&quot;);</span>
+<span class="nc" id="L26">        System.out.println(&quot;增强版 (Enhanced Data Generator + LASSO)&quot;);</span>
+<span class="nc" id="L27">        System.out.println(&quot;=&quot;.repeat(60));</span>
+        
+        // 1. 生成经济数据
+<span class="nc" id="L30">        System.out.println(&quot;\n📊 [步骤 1/4] 正在生成高维经济时间序列数据...&quot;);</span>
+<span class="nc" id="L31">        EnhancedDataGenerator generator = new EnhancedDataGenerator(42);</span>
+<span class="nc" id="L32">        double[][] economicData = generator.generateData();</span>
+<span class="nc" id="L33">        String[] indicatorNames = getIndicatorNames();</span>
+<span class="nc" id="L34">        System.out.println(&quot;   ✓ 生成了 &quot; + NUM_PERIODS + &quot; 期 × &quot; + NUM_INDICATORS + &quot; 个指标的数据&quot;);</span>
+        
+        // 2. 基于 LASSO 算法挖掘因果关系
+<span class="nc" id="L37">        System.out.println(&quot;\n🔗 [步骤 2/4] 正在挖掘指标间的动态因果关系...&quot;);</span>
+<span class="nc" id="L38">        CausalEngineImpl causalEngine = new CausalEngineImpl(false); // 串行执行</span>
+<span class="nc" id="L39">        causalEngine.registerMethod(new LassoRegression());</span>
+        
+<span class="nc" id="L41">        CausalConfig config = new CausalConfig();</span>
+<span class="nc" id="L42">        config.setParallel(false);</span>
+        
+<span class="nc" id="L44">        CausalResult causalResult = causalEngine.discover(economicData, config);</span>
+<span class="nc" id="L45">        System.out.println(&quot;   ✓ 完成因果发现 (LASSO 回归)&quot;);</span>
+        
+        // 3. 构建 JGraphT 网络拓扑
+<span class="nc" id="L48">        System.out.println(&quot;\n🌐 [步骤 3/4] 正在构建宏观网络图谱...&quot;);</span>
+<span class="nc" id="L49">        NetworkBuilder networkBuilder = new NetworkBuilder(EDGE_THRESHOLD);</span>
+<span class="nc" id="L50">        NetworkGraph network = networkBuilder.build(</span>
+<span class="nc" id="L51">            causalResult, </span>
+<span class="nc" id="L52">            java.util.Arrays.asList(indicatorNames)</span>
+        );
+<span class="nc" id="L54">        System.out.println(&quot;   ✓ 网络构建完成：&quot; + </span>
+<span class="nc" id="L55">            network.getGraph().vertexSet().size() + &quot; 个节点，&quot; + </span>
+<span class="nc" id="L56">            network.getGraph().edgeSet().size() + &quot; 条边&quot;);</span>
+        
+        // 4. 输出网络统计信息
+<span class="nc" id="L59">        System.out.println(&quot;\n📈 [步骤 4/4] 网络统计分析:&quot;);</span>
+<span class="nc" id="L60">        printNetworkStatistics(network);</span>
+        
+<span class="nc" id="L62">        System.out.println(&quot;\n&quot; + &quot;=&quot;.repeat(60));</span>
+<span class="nc" id="L63">        System.out.println(&quot;✅ 分析完成！&quot;);</span>
+<span class="nc" id="L64">        System.out.println();</span>
+<span class="nc" id="L65">        System.out.println(&quot;💡 提示：启动 Web 服务器访问交互式可视化界面&quot;);</span>
+<span class="nc" id="L66">        System.out.println(&quot;   运行：mvn spring-boot:run&quot;);</span>
+<span class="nc" id="L67">        System.out.println(&quot;   然后访问：http://localhost:8080&quot;);</span>
+<span class="nc" id="L68">        System.out.println(&quot;=&quot;.repeat(60));</span>
+<span class="nc" id="L69">    }</span>
+    
+    /**
+     * 获取指标名称（与原版一致）
+     */
+    private static String[] getIndicatorNames() {
+<span class="nc" id="L75">        String[] names = new String[NUM_INDICATORS];</span>
+<span class="nc" id="L76">        int idx = 0;</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">        for(int i=0; i&lt;10; i++) names[idx++] = &quot;CMD_&quot; + i; // Commodity (大宗商品)</span>
+<span class="nc bnc" id="L78" title="All 2 branches missed.">        for(int i=0; i&lt;15; i++) names[idx++] = &quot;MACRO_&quot; + i; // Macro (宏观指标)</span>
+<span class="nc bnc" id="L79" title="All 2 branches missed.">        for(int i=0; i&lt;10; i++) names[idx++] = &quot;FIN_&quot; + i;   // Finance (金融市场)</span>
+<span class="nc bnc" id="L80" title="All 2 branches missed.">        for(int i=0; i&lt;5; i++)  names[idx++] = &quot;EMPL_&quot; + i;  // Employment (就业)</span>
+<span class="nc" id="L81">        return names;</span>
+    }
+    
+    /**
+     * 打印网络统计信息
+     */
+    private static void printNetworkStatistics(NetworkGraph network) {
+<span class="nc" id="L88">        var stats = network.getNetworkStatistics();</span>
+        
+<span class="nc" id="L90">        System.out.println(&quot;   节点数：&quot; + stats.get(&quot;nodeCount&quot;));</span>
+<span class="nc" id="L91">        System.out.println(&quot;   边数：&quot; + stats.get(&quot;edgeCount&quot;));</span>
+<span class="nc" id="L92">        System.out.println(String.format(&quot;   网络密度：%.4f&quot;, stats.get(&quot;density&quot;)));</span>
+        
+        // 输出度最高的前 5 个节点
+<span class="nc" id="L95">        System.out.println(&quot;\n   影响力最大的指标 (Top 5):&quot;);</span>
+<span class="nc" id="L96">        var nodes = network.getNodes();</span>
+<span class="nc" id="L97">        var nodeDegrees = new java.util.ArrayList&lt;java.util.Map.Entry&lt;String, Integer&gt;&gt;();</span>
+        
+<span class="nc bnc" id="L99" title="All 2 branches missed.">        for (String node : nodes) {</span>
+<span class="nc" id="L100">            int outDegree = network.getOutDegree(node);</span>
+<span class="nc" id="L101">            int inDegree = network.getInDegree(node);</span>
+<span class="nc" id="L102">            nodeDegrees.add(new java.util.AbstractMap.SimpleEntry&lt;&gt;(</span>
+<span class="nc" id="L103">                node, outDegree + inDegree</span>
+            ));
+        }
+        
+<span class="nc" id="L107">        nodeDegrees.sort((a, b) -&gt; Integer.compare(b.getValue(), a.getValue()));</span>
+        
+<span class="nc bnc" id="L109" title="All 2 branches missed.">        for (int i = 0; i &lt; Math.min(5, nodeDegrees.size()); i++) {</span>
+<span class="nc" id="L110">            var entry = nodeDegrees.get(i);</span>
+<span class="nc" id="L111">            System.out.println(String.format(&quot;      %d. %s (总度数：%d)&quot;, </span>
+<span class="nc" id="L112">                i + 1, entry.getKey(), entry.getValue()));</span>
+        }
+<span class="nc" id="L114">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

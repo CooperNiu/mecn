@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SimulatedDataProvider.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mecn</a> &gt; <a href="index.source.html" class="el_package">com.mecn.data.provider</a> &gt; <span class="el_source">SimulatedDataProvider.java</span></div><h1>SimulatedDataProvider.java</h1><pre class="source lang-java linenums">package com.mecn.data.provider;
+
+import com.mecn.data.generator.EnhancedDataGenerator;
+import com.mecn.model.EconomicIndicator;
+import com.mecn.model.TimeSeriesData;
+
+import java.time.LocalDate;
+import java.util.List;
+
+/**
+ * 模拟数据提供者
+ * 
+ * 使用增强版模拟数据生成器提供经济指标数据
+ */
+public class SimulatedDataProvider implements DataProvider {
+    
+    private final EnhancedDataGenerator generator;
+    private final String name;
+    
+<span class="nc" id="L20">    public SimulatedDataProvider() {</span>
+<span class="nc" id="L21">        this.generator = new EnhancedDataGenerator();</span>
+<span class="nc" id="L22">        this.name = &quot;Simulated&quot;;</span>
+<span class="nc" id="L23">    }</span>
+    
+<span class="nc" id="L25">    public SimulatedDataProvider(long seed) {</span>
+<span class="nc" id="L26">        this.generator = new EnhancedDataGenerator(seed);</span>
+<span class="nc" id="L27">        this.name = &quot;Simulated (seed=&quot; + seed + &quot;)&quot;;</span>
+<span class="nc" id="L28">    }</span>
+    
+    @Override
+    public List&lt;TimeSeriesData&gt; fetch(List&lt;EconomicIndicator&gt; indicators, 
+                                       LocalDate startDate, 
+                                       LocalDate endDate) {
+        // 使用增强版生成器生成所有指标数据
+<span class="nc" id="L35">        List&lt;TimeSeriesData&gt; allData = generator.generateTimeSeriesData(startDate, endDate);</span>
+        
+        // 如果指定了具体指标，则过滤
+<span class="nc bnc" id="L38" title="All 4 branches missed.">        if (indicators != null &amp;&amp; !indicators.isEmpty()) {</span>
+<span class="nc" id="L39">            return filterByIndicators(allData, indicators);</span>
+        }
+        
+<span class="nc" id="L42">        return allData;</span>
+    }
+    
+    /**
+     * 根据指标列表过滤数据
+     */
+    private List&lt;TimeSeriesData&gt; filterByIndicators(List&lt;TimeSeriesData&gt; allData, 
+                                                      List&lt;EconomicIndicator&gt; indicators) {
+<span class="nc" id="L50">        return allData.stream()</span>
+<span class="nc" id="L51">            .filter(ts -&gt; indicators.stream()</span>
+<span class="nc" id="L52">                .anyMatch(ind -&gt; ind.getCode().equals(ts.getIndicatorCode())))</span>
+<span class="nc" id="L53">            .collect(java.util.stream.Collectors.toList());</span>
+    }
+    
+    @Override
+    public List&lt;EconomicIndicator&gt; getSupportedIndicators() {
+<span class="nc" id="L58">        return generator.getSupportedIndicators();</span>
+    }
+    
+    @Override
+    public String getName() {
+<span class="nc" id="L63">        return name;</span>
+    }
+    
+    /**
+     * 获取生成器配置信息
+     */
+    public Object getConfigInfo() {
+<span class="nc" id="L70">        return generator.getConfigInfo();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

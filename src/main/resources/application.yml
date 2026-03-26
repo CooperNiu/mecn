@@ -1,0 +1,76 @@
+# MECN Application Configuration
+spring:
+  application:
+    name: mecn-application
+  
+  # Web 配置
+  mvc:
+    static-path-pattern: /**
+  
+  resources:
+    static-locations: classpath:/static/
+  
+  # Thymeleaf 模板配置（用于 HTML 报告）
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    mode: HTML
+    cache: false
+
+# Server 配置
+server:
+  port: 8080
+  servlet:
+    context-path: /
+
+# MECN 自定义配置
+mecn:
+  # 兼容模式：true=仅使用 LASSO（与原版一致），false=启用多算法集成
+  legacy-mode: false
+  
+  # 默认数据源：simulated（模拟）/ fred（FRED API）/ worldbank（World Bank）
+  default-data-source: simulated
+  
+  # 因果发现方法（支持：lasso, granger, pcmci）
+  causal-methods:
+    - lasso
+    - granger
+    - pcmci
+  
+  # 网络可视化节点数上限
+  max-visualization-nodes: 100
+  
+  # 涟漪效应模拟时间步数
+  ripple-time-steps: 20
+  
+  # 冲击传播衰减因子
+  decay-factor: 0.9
+  
+  # 网络边过滤阈值
+  edge-threshold: 0.08
+
+# FRED API 配置（需要从 https://fred.stlouisfed.org/docs/api/api_key.html 获取）
+fred:
+  api-key: ${FRED_API_KEY:demo}  # 可通过环境变量设置
+  base-url: https://api.stlouisfed.org/fred
+  
+# World Bank API 配置
+worldbank:
+  base-url: https://api.worldbank.org/v2
+  
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.mecn: DEBUG
+    org.springframework.web: INFO
+  
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+
+# 性能监控配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics

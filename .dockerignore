@@ -1,0 +1,56 @@
+# Docker 构建忽略文件
+
+# Maven 构建目录
+target/
+**/target/
+
+# IDE 配置
+.idea/
+*.iml
+.vscode/
+.settings/
+.project
+.classpath
+
+# Git
+.git/
+.gitignore
+
+# Docker 相关文件（除了 Dockerfile 和 docker-compose.yml）
+docker-compose.override.yml
+*.dockerfile
+
+# 日志文件
+logs/
+*.log
+
+# 临时文件
+*.tmp
+*.bak
+*.swp
+*~
+
+# 文档（不需要打包到镜像中）
+*.md
+docs/
+
+# 测试报告
+test-output/
+surefire-reports/
+
+# 覆盖率报告
+target/site/jacoco/
+
+# 本地配置文件（包含敏感信息）
+config/*.local.yml
+.env
+.env.local
+*.credentials
+
+# macOS 系统文件
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows 系统文件
+Thumbs.db

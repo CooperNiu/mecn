@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="zh"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CentralityResult.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">mecn</a> &gt; <a href="index.source.html" class="el_package">com.mecn.model</a> &gt; <span class="el_source">CentralityResult.java</span></div><h1>CentralityResult.java</h1><pre class="source lang-java linenums">package com.mecn.model;
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * 中心性分析结果
+ * 
+ * 存储节点的各种中心性指标计算结果
+ */
+public class CentralityResult {
+    
+    private String nodeId;                          // 节点 ID
+    private Double degreeCentrality;                // 度中心性
+    private Double inDegreeCentrality;              // 入度中心性
+    private Double outDegreeCentrality;             // 出度中心性
+    private Double closenessCentrality;             // 接近中心性
+    private Double betweennessCentrality;           // 中介中心性
+    private Double pageRank;                        // PageRank
+    private Double eigenvectorCentrality;           // 特征向量中心性
+    private Map&lt;String, Double&gt; customMetrics;      // 自定义指标
+    
+<span class="nc" id="L23">    public CentralityResult() {</span>
+<span class="nc" id="L24">        this.customMetrics = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L25">    }</span>
+    
+    public CentralityResult(String nodeId) {
+<span class="nc" id="L28">        this();</span>
+<span class="nc" id="L29">        this.nodeId = nodeId;</span>
+<span class="nc" id="L30">    }</span>
+    
+    // Getters and Setters
+    public String getNodeId() {
+<span class="nc" id="L34">        return nodeId;</span>
+    }
+    
+    public void setNodeId(String nodeId) {
+<span class="nc" id="L38">        this.nodeId = nodeId;</span>
+<span class="nc" id="L39">    }</span>
+    
+    public Double getDegreeCentrality() {
+<span class="nc" id="L42">        return degreeCentrality;</span>
+    }
+    
+    public void setDegreeCentrality(Double degreeCentrality) {
+<span class="nc" id="L46">        this.degreeCentrality = degreeCentrality;</span>
+<span class="nc" id="L47">    }</span>
+    
+    public Double getInDegreeCentrality() {
+<span class="nc" id="L50">        return inDegreeCentrality;</span>
+    }
+    
+    public void setInDegreeCentrality(Double inDegreeCentrality) {
+<span class="nc" id="L54">        this.inDegreeCentrality = inDegreeCentrality;</span>
+<span class="nc" id="L55">    }</span>
+    
+    public Double getOutDegreeCentrality() {
+<span class="nc" id="L58">        return outDegreeCentrality;</span>
+    }
+    
+    public void setOutDegreeCentrality(Double outDegreeCentrality) {
+<span class="nc" id="L62">        this.outDegreeCentrality = outDegreeCentrality;</span>
+<span class="nc" id="L63">    }</span>
+    
+    public Double getClosenessCentrality() {
+<span class="nc" id="L66">        return closenessCentrality;</span>
+    }
+    
+    public void setClosenessCentrality(Double closenessCentrality) {
+<span class="nc" id="L70">        this.closenessCentrality = closenessCentrality;</span>
+<span class="nc" id="L71">    }</span>
+    
+    public Double getBetweennessCentrality() {
+<span class="nc" id="L74">        return betweennessCentrality;</span>
+    }
+    
+    public void setBetweennessCentrality(Double betweennessCentrality) {
+<span class="nc" id="L78">        this.betweennessCentrality = betweennessCentrality;</span>
+<span class="nc" id="L79">    }</span>
+    
+    public Double getPageRank() {
+<span class="nc" id="L82">        return pageRank;</span>
+    }
+    
+    public void setPageRank(Double pageRank) {
+<span class="nc" id="L86">        this.pageRank = pageRank;</span>
+<span class="nc" id="L87">    }</span>
+    
+    public Double getEigenvectorCentrality() {
+<span class="nc" id="L90">        return eigenvectorCentrality;</span>
+    }
+    
+    public void setEigenvectorCentrality(Double eigenvectorCentrality) {
+<span class="nc" id="L94">        this.eigenvectorCentrality = eigenvectorCentrality;</span>
+<span class="nc" id="L95">    }</span>
+    
+    public Map&lt;String, Double&gt; getCustomMetrics() {
+<span class="nc" id="L98">        return customMetrics;</span>
+    }
+    
+    public void setCustomMetrics(Map&lt;String, Double&gt; customMetrics) {
+<span class="nc" id="L102">        this.customMetrics = customMetrics;</span>
+<span class="nc" id="L103">    }</span>
+    
+    public void addCustomMetric(String name, Double value) {
+<span class="nc" id="L106">        this.customMetrics.put(name, value);</span>
+<span class="nc" id="L107">    }</span>
+    
+    /**
+     * 获取综合重要性得分（简单平均）
+     */
+    public double getCompositeScore() {
+<span class="nc" id="L113">        double sum = 0.0;</span>
+<span class="nc" id="L114">        int count = 0;</span>
+        
+<span class="nc bnc" id="L116" title="All 2 branches missed.">        if (degreeCentrality != null) { sum += degreeCentrality; count++; }</span>
+<span class="nc bnc" id="L117" title="All 2 branches missed.">        if (closenessCentrality != null) { sum += closenessCentrality; count++; }</span>
+<span class="nc bnc" id="L118" title="All 2 branches missed.">        if (betweennessCentrality != null) { sum += betweennessCentrality; count++; }</span>
+<span class="nc bnc" id="L119" title="All 2 branches missed.">        if (pageRank != null) { sum += pageRank; count++; }</span>
+<span class="nc bnc" id="L120" title="All 2 branches missed.">        if (eigenvectorCentrality != null) { sum += eigenvectorCentrality; count++; }</span>
+        
+<span class="nc bnc" id="L122" title="All 2 branches missed.">        return count &gt; 0 ? sum / count : 0.0;</span>
+    }
+    
+    @Override
+    public String toString() {
+<span class="nc" id="L127">        return &quot;CentralityResult{&quot; +</span>
+<span class="nc" id="L128">                &quot;nodeId='&quot; + nodeId + '\'' +</span>
+<span class="nc" id="L129">                &quot;, degree=&quot; + degreeCentrality +</span>
+<span class="nc" id="L130">                &quot;, closeness=&quot; + closenessCentrality +</span>
+<span class="nc" id="L131">                &quot;, betweenness=&quot; + betweennessCentrality +</span>
+<span class="nc" id="L132">                &quot;, pageRank=&quot; + pageRank +</span>
+<span class="nc" id="L133">                &quot;, composite=&quot; + String.format(&quot;%.4f&quot;, getCompositeScore()) +</span>
+                '}';
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>
