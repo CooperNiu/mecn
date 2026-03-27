@@ -1,0 +1,151 @@
+# MECN 文档站点配置
+
+# 项目信息
+site_name: MECN - 高维宏观经济因果网络联动模型
+site_description: Macro Economic Causal Network - 分析宏观经济指标间因果关系的复杂网络模型
+site_author: MECN Team
+site_url: https://mecn-project.github.io
+
+# 仓库信息
+repo_name: mecn
+repo_url: https://github.com/mecn/mecn
+edit_uri: edit/main/docs/
+
+# 版权信息
+copyright: Copyright &copy; 2026 MECN Project
+
+# 主题配置
+theme:
+  name: material
+  language: zh
+  features:
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.sections
+    - navigation.expand
+    - navigation.indexes
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.tabs.link
+    - content.code.annotation
+    - content.code.copy
+  palette:
+    # 浅色模式
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: 切换到深色模式
+    # 深色模式
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: 切换到浅色模式
+  font:
+    text: Roboto
+    code: Roboto Mono
+  favicon: assets/favicon.ico
+  logo: assets/logo.png
+
+# 导航菜单
+nav:
+  - 首页: 
+    - 项目介绍: index.md
+    - 快速开始: quickstart.md
+    - 核心功能: features.md
+  - 使用指南:
+    - API 使用: api/usage.md
+    - Builder 模式: api/builder.md
+    - 配置选项: api/configuration.md
+    - 最佳实践: api/best-practices.md
+  - 部署运维:
+    - Docker 部署: deployment/docker.md
+    - 环境配置: deployment/configuration.md
+    - 健康检查: deployment/healthcheck.md
+    - 故障排查: deployment/troubleshooting.md
+    - 性能优化: deployment/performance.md
+  - 开发指南:
+    - 开发环境设置: development/setup.md
+    - 代码规范: development/coding-standard.md
+    - 测试指南: development/testing.md
+    - 贡献指南: development/contributing.md
+  - 架构设计:
+    - 系统架构: architecture/overview.md
+    - 因果发现引擎: architecture/causal-engine.md
+    - 网络分析模块: architecture/network-analysis.md
+    - 数据层设计: architecture/data-layer.md
+  - 变更日志: changelog.md
+
+# 插件配置
+plugins:
+  - search:
+      lang:
+        - zh
+        - en
+  - git-revision-date-localized:
+      type: date
+      locale: zh
+  - minify:
+      minify_html: true
+  - awesome-pages:
+      collapse_single_pages: true
+  - mkdocstrings:
+      handlers:
+        java:
+          options:
+            docstring_style: javadoc
+  - redirects:
+      redirect_maps:
+        'old-api.md': 'api/usage.md'
+        'old-deployment.md': 'deployment/docker.md'
+
+# Markdown 扩展
+markdown_extensions:
+  - admonition:  # 警告框
+  - pymdownx.details:  # 可折叠警告框
+  - pymdownx.superfences:  # 代码块增强
+  - pymdownx.tabbed:  # 标签页
+  - pymdownx.tasklist:  # 任务列表
+  - pymdownx.inlinehilite:  # 行内高亮
+  - pymdownx.snippets:  # 代码片段引用
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.arithmatex:  # 数学公式
+  - footnotes:  # 脚注
+  - attr_list:  # HTML 属性支持
+  - md_in_html:  # HTML 中的 Markdown
+  - def_list:  # 定义列表
+  - tables:  # 表格支持
+  - toc:
+      permalink: true
+      separator: "_"
+
+# 额外配置
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/mecn/mecn
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/r/mecn/mecn
+  version:
+    provider: mike
+    default: latest
+  analytics:
+    provider: google
+    property: G-XXXXXXXXXX
+
+# 自定义 JavaScript
+extra_javascript:
+  - javascripts/mathjax.js
+  - https://polyfill.io/v3/polyfill.min.js?features=es6
+  - https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js
+
+# 自定义 CSS
+extra_css:
+  - stylesheets/extra.css

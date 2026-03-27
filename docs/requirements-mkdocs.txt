@@ -1,0 +1,16 @@
+# MkDocs 核心
+mkdocs>=1.5.0
+mkdocs-material>=9.4.0
+
+# MkDocs 插件
+mkdocs-git-revision-date-localized-plugin>=1.2.0
+mkdocs-minify-plugin>=0.7.0
+mkdocs-awesome-pages-plugin>=2.9.0
+mkdocstrings[python]>=0.23.0
+mkdocs-redirects>=1.2.0
+
+# 可选：版本管理
+mike>=2.0.0
+
+# 可选：Markdown 扩展
+pymdown-extensions>=10.3

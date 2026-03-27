@@ -289,9 +289,34 @@ mvn test -Dtest=LassoRegressionTest
 
 ## 📚 文档
 
+- **[项目主页](https://mecn-project.github.io/)** - 完整的在线文档网站
 - **[API 使用指南](docs/API_USAGE.md)** - 详细的 API 使用说明
 - **[部署指南](docs/DEPLOYMENT.md)** - Docker 部署和配置
 - **[测试指南](docs/TESTING.md)** - 测试模块说明和覆盖率报告
+- **[贡献指南](CONTRIBUTING.md)** - 如何参与项目贡献
+- **[变更日志](CHANGELOG.md)** - 版本历史记录
+
+### 🌐 文档网站
+
+本项目使用 MkDocs 构建现代化的文档网站，提供：
+
+- 📖 结构化的导航和搜索
+- 🎨 响应式设计和深色模式
+- 📱 移动端适配
+- 🔍 全文搜索（中英文）
+- 📊 交互式示例和代码高亮
+
+**构建本地文档站点：**
+
+```bash
+# 一键构建
+./build-docs.sh
+
+# 本地预览
+./serve-docs.sh
+```
+
+访问 http://localhost:8000 查看文档网站。
 
 ## 🤝 贡献指南
 
