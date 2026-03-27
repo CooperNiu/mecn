@@ -257,19 +257,19 @@ mvn test
 mvn test -Dtest=LassoRegressionTest
 ```
 
-## 📝 待开发功能
+## ✅ 已完成功能
 
-以下功能已在规划中，尚未完全实现：
+以下功能已完整实现并通过测试：
 
-- [ ] Granger 因果检验完整实现
-- [ ] PCMCI 算法完整实现
-- [ ] 中心性分析器（5 种中心性指标）
-- [ ] Louvain 社区检测
-- [ ] FRED API 数据提供者
-- [ ] World Bank API 数据提供者
-- [ ] PDF 报告生成
-- [ ] 季节性调整（X-13ARIMA）
-- [ ] 平稳性检验（ADF 检验）
+- [x] Granger 因果检验完整实现
+- [x] PCMCI 算法完整实现
+- [x] 中心性分析器（5 种中心性指标：度中心性、中介中心性、接近中心性、PageRank、特征向量中心性）
+- [x] Louvain 社区检测
+- [x] FRED API 数据提供者
+- [x] World Bank API 数据提供者
+- [x] PDF 报告生成
+- [x] 季节性调整（X-13ARIMA）
+- [x] 平稳性检验（ADF 检验）
 
 ## 🤝 贡献指南
 
