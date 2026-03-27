@@ -125,30 +125,26 @@ public class FredDataProvider implements DataProvider {
         List<Double> values = new ArrayList<>();
         List<LocalDate> dates = new ArrayList<>();
         
-        // TODO: 使用 JSON 库解析响应
-        // 伪代码示例：
-        // JSONObject json = new JSONObject(jsonResponse);
-        // JSONArray observations = json.getJSONArray("observations");
-        // for (int i = 0; i < observations.length(); i++) {
-        //     JSONObject obs = observations.getJSONObject(i);
-        //     String dateStr = obs.getString("date");
-        //     String valueStr = obs.getString("value");
-        //     
-        //     if (!".".equals(valueStr)) {
-        //         dates.add(LocalDate.parse(dateStr));
-        //         values.add(Double.parseDouble(valueStr));
-        //     }
-        // }
-        
-        if (values.isEmpty()) {
-            return null;
+        // TODO: 使用 JSON 库解析响应（目前为简化实现）
+        // 实际使用时需要添加 Jackson 或 Gson 依赖
+        /*
+        JSONObject json = new JSONObject(jsonResponse);
+        JSONArray observations = json.getJSONArray("observations");
+        for (int i = 0; i < observations.length(); i++) {
+            JSONObject obs = observations.getJSONObject(i);
+            String dateStr = obs.getString("date");
+            String valueStr = obs.getString("value");
+            
+            if (!".".equals(valueStr)) {
+                dates.add(LocalDate.parse(dateStr));
+                values.add(Double.parseDouble(valueStr));
+            }
         }
+        */
         
-        TimeSeriesData data = new TimeSeriesData(seriesId, seriesId);
-        data.setDates(dates.toArray(new LocalDate[0]));
-        data.setValues(values.stream().mapToDouble(Double::doubleValue).toArray());
-        
-        return data;
+        // 临时返回空数据 - 需要完善 JSON 解析实现
+        // throw new UnsupportedOperationException("JSON parsing not implemented yet");
+        return null;
     }
     
     @Override

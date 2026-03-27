@@ -136,35 +136,30 @@ public class WorldBankDataProvider implements DataProvider {
         List<Double> values = new ArrayList<>();
         List<LocalDate> dates = new ArrayList<>();
         
-        // TODO: 使用 JSON 库解析响应
-        // 伪代码示例：
-        // JSONArray jsonArray = new JSONArray(jsonResponse);
-        // JSONArray data = jsonArray.getJSONArray(1);
-        // for (int i = 0; i < data.length(); i++) {
-        //     JSONObject item = data.getJSONObject(i);
-        //     String dateStr = item.getString("date");
-        //     Object valueObj = item.get("value");
-        //     
-        //     if (valueObj != null && !"null".equals(valueObj.toString())) {
-        //         try {
-        //             int year = Integer.parseInt(dateStr);
-        //             dates.add(LocalDate.of(year, 1, 1));
-        //             values.add(((Number) valueObj).doubleValue());
-        //         } catch (NumberFormatException e) {
-        //             // 跳过无效的日期
-        //         }
-        //     }
-        // }
-        
-        if (values.isEmpty()) {
-            return null;
+        // TODO: 使用 JSON 库解析响应（目前为简化实现）
+        // World Bank API 返回的格式：[[...]], [[...]]]
+        /*
+        JSONArray jsonArray = new JSONArray(jsonResponse);
+        JSONArray data = jsonArray.getJSONArray(1);
+        for (int i = 0; i < data.length(); i++) {
+            JSONObject item = data.getJSONObject(i);
+            String dateStr = item.getString("date");
+            Object valueObj = item.get("value");
+            
+            if (valueObj != null && !"null".equals(valueObj.toString())) {
+                try {
+                    int year = Integer.parseInt(dateStr);
+                    dates.add(LocalDate.of(year, 1, 1));
+                    values.add(((Number) valueObj).doubleValue());
+                } catch (NumberFormatException e) {
+                    // 跳过无效的日期
+                }
+            }
         }
+        */
         
-        TimeSeriesData data = new TimeSeriesData(indicatorId, indicatorId);
-        data.setDates(dates.toArray(new LocalDate[0]));
-        data.setValues(values.stream().mapToDouble(Double::doubleValue).toArray());
-        
-        return data;
+        // 临时返回空数据 - 需要完善 JSON 解析实现
+        return null;
     }
     
     @Override

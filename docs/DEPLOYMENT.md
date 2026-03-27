@@ -1,19 +1,5 @@
 # MECN Docker 部署指南
 
-本目录包含 MECN 项目的 Docker 部署相关文件。
-
-## 📁 文件说明
-
-```
-docker/
-├── nginx/
-│   ├── nginx.conf              # Nginx 反向代理配置
-│   └── ssl/                    # SSL 证书目录（需自行创建）
-├── config/
-│   └── application-prod.yml.example  # 生产环境配置示例
-└── logs/                       # 日志目录
-```
-
 ## 🚀 快速开始
 
 ### 1. 使用 Docker Compose（推荐）

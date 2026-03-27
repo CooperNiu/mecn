@@ -7,10 +7,9 @@ import com.itextpdf.layout.Document;
 import com.itextpdf.layout.element.*;
 import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
-import com.itextpdf.text.pdf.PdfFontFactory;
 import com.mecn.causal.CausalResult;
+import com.mecn.model.CentralityResult;
 import com.mecn.model.NetworkGraph;
-import com.mecn.network.CentralityResult;
 import com.mecn.network.SystemicImportance;
 
 import java.io.ByteArrayOutputStream;
@@ -41,7 +40,7 @@ import java.util.Map;
  */
 public class PdfReportGenerator {
     
-    private static final String TITLE_FONT = "Helvetica-Bold";
+    private static final String TITLE_FONT = "Helvetica";
     private static final String NORMAL_FONT = "Helvetica";
     
     /**
@@ -88,7 +87,6 @@ public class PdfReportGenerator {
      */
     private void addTitle(Document document, String title) {
         Paragraph titleParagraph = new Paragraph(title)
-            .setFont(PdfFontFactory.createRegisteredFont(TITLE_FONT))
             .setFontSize(24)
             .setTextAlignment(TextAlignment.CENTER)
             .setBold()
@@ -99,7 +97,6 @@ public class PdfReportGenerator {
         // 添加副标题/日期
         String dateStr = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy 年 MM 月 dd 日"));
         Paragraph subtitle = new Paragraph("报告生成日期：" + dateStr)
-            .setFont(PdfFontFactory.createRegisteredFont(NORMAL_FONT))
             .setFontSize(12)
             .setTextAlignment(TextAlignment.CENTER)
             .setItalic()
@@ -113,7 +110,7 @@ public class PdfReportGenerator {
      */
     private void addMetadata(Document document, CausalResult causalResult) {
         document.add(new Paragraph("报告元信息")
-            .setFont(PdfFontFactory.createRegisteredFont(TITLE_FONT))
+            
             .setFontSize(16)
             .setBold()
             .setMarginTop(10)
@@ -140,7 +137,7 @@ public class PdfReportGenerator {
      */
     private void addExecutiveSummary(Document document, CausalResult causalResult, NetworkGraph network) {
         document.add(new Paragraph("执行摘要")
-            .setFont(PdfFontFactory.createRegisteredFont(TITLE_FONT))
+            
             .setFontSize(16)
             .setBold()
             .setMarginTop(20)
@@ -150,7 +147,7 @@ public class PdfReportGenerator {
         int numEdges = countNonZeroEdges(adjacencyMatrix);
         
         Paragraph summary = new Paragraph()
-            .setFont(PdfFontFactory.createRegisteredFont(NORMAL_FONT))
+            
             .setFontSize(11)
             .add("本次分析共识别出 ")
             .add(String.valueOf(numEdges))
@@ -168,7 +165,7 @@ public class PdfReportGenerator {
      */
     private void addNetworkStatistics(Document document, NetworkGraph network) {
         document.add(new Paragraph("网络统计信息")
-            .setFont(PdfFontFactory.createRegisteredFont(TITLE_FONT))
+            
             .setFontSize(16)
             .setBold()
             .setMarginTop(20)
@@ -192,7 +189,7 @@ public class PdfReportGenerator {
      */
     private void addCentralityAnalysis(Document document, List<CentralityResult> centralityResults) {
         document.add(new Paragraph("中心性分析")
-            .setFont(PdfFontFactory.createRegisteredFont(TITLE_FONT))
+            
             .setFontSize(16)
             .setBold()
             .setMarginTop(20)
@@ -200,7 +197,7 @@ public class PdfReportGenerator {
         
         // 添加 Top 10 重要节点
         document.add(new Paragraph("Top 10 重要节点（按综合得分）")
-            .setFont(PdfFontFactory.createRegisteredFont(NORMAL_FONT))
+            
             .setFontSize(14)
             .setBold()
             .setMarginBottom(10));
@@ -237,14 +234,14 @@ public class PdfReportGenerator {
      */
     private void addSystemicImportanceAnalysis(Document document, List<SystemicImportance> importanceList) {
         document.add(new Paragraph("系统重要性分析")
-            .setFont(PdfFontFactory.createRegisteredFont(TITLE_FONT))
+            
             .setFontSize(16)
             .setBold()
             .setMarginTop(20)
             .setMarginBottom(10));
         
         document.add(new Paragraph("以下节点对网络整体效率影响最大：")
-            .setFont(PdfFontFactory.createRegisteredFont(NORMAL_FONT))
+            
             .setFontSize(11)
             .setMarginBottom(10));
         
@@ -277,7 +274,7 @@ public class PdfReportGenerator {
     private void addKeyFindings(Document document, CausalResult causalResult, 
                                NetworkGraph network, List<CentralityResult> centralityResults) {
         document.add(new Paragraph("关键发现与建议")
-            .setFont(PdfFontFactory.createRegisteredFont(TITLE_FONT))
+            
             .setFontSize(16)
             .setBold()
             .setMarginTop(20)
@@ -290,7 +287,7 @@ public class PdfReportGenerator {
         
         if (topNode != null) {
             Paragraph finding = new Paragraph()
-                .setFont(PdfFontFactory.createRegisteredFont(NORMAL_FONT))
+                
                 .setFontSize(11)
                 .add("1. 关键节点识别：")
                 .add(topNode.getNodeId())
@@ -306,7 +303,7 @@ public class PdfReportGenerator {
         String densityAssessment = density > 0.3 ? "较高" : (density < 0.1 ? "较低" : "中等");
         
         Paragraph densityFinding = new Paragraph()
-            .setFont(PdfFontFactory.createRegisteredFont(NORMAL_FONT))
+            
             .setFontSize(11)
             .add("2. 网络结构特征：网络密度为 ")
             .add(String.format("%.4f", density))
@@ -318,7 +315,7 @@ public class PdfReportGenerator {
         
         // 风险管理建议
         Paragraph recommendation = new Paragraph()
-            .setFont(PdfFontFactory.createRegisteredFont(NORMAL_FONT))
+            
             .setFontSize(11)
             .add("3. 风险管理建议：建立对关键节点的实时监控机制，制定风险预警和应对预案，")
             .add("防止系统性风险的传播和扩散。");
@@ -332,13 +329,13 @@ public class PdfReportGenerator {
     private void addTableRow(Table table, String label, String value) {
         table.addCell(new Cell()
             .add(new Paragraph(label)
-                .setFont(PdfFontFactory.createRegisteredFont(NORMAL_FONT))
+                
                 .setFontSize(11)
                 .setBold()));
         
         table.addCell(new Cell()
             .add(new Paragraph(value != null ? value : "N/A")
-                .setFont(PdfFontFactory.createRegisteredFont(NORMAL_FONT))
+                
                 .setFontSize(11)));
     }
     

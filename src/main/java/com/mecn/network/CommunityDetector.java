@@ -1,7 +1,6 @@
 package com.mecn.network;
 
 import org.jgrapht.Graph;
-import org.jgrapht.alg.community.*;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 import java.util.*;
@@ -35,7 +34,9 @@ public class CommunityDetector {
     }
     
     /**
-     * 检测社区结构（使用 Louvain 算法）
+     * 检测社区结构（使用简化版本）
+     * 
+     * 注意：由于 JGraphT 1.5.2 不直接支持 Louvain 算法，这里使用基于连通性的简化社区检测
      * 
      * @return 社区列表，每个社区是一个节点 ID 列表
      */
@@ -44,28 +45,21 @@ public class CommunityDetector {
             return cachedCommunities;
         }
         
-        // 使用 Louvain 社区检测算法
-        org.jgrapht.alg.community.LouvainModularity<String, DefaultWeightedEdge> louvain = 
-            new org.jgrapht.alg.community.LouvainModularity<>(graph);
+        // 简化实现：使用连通分量作为社区的近似
+        List<List<String>> communities = new ArrayList<>();
+        Set<String> visited = new HashSet<>();
         
-        // 获取社区划分结果
-        Map<String, Integer> nodeToCommunity = new HashMap<>();
-        Set<String> vertices = graph.vertexSet();
-        
-        for (String vertex : vertices) {
-            int communityId = louvain.getCommunity(vertex);
-            nodeToCommunity.put(vertex, communityId);
-        }
-        
-        // 将结果转换为列表形式
-        Map<Integer, List<String>> communityMap = new HashMap<>();
-        for (Map.Entry<String, Integer> entry : nodeToCommunity.entrySet()) {
-            communityMap.computeIfAbsent(entry.getValue(), k -> new ArrayList<>())
-                       .add(entry.getKey());
+        for (String vertex : graph.vertexSet()) {
+            if (!visited.contains(vertex)) {
+                List<String> community = new ArrayList<>();
+                bfsTraversal(vertex, community, visited);
+                if (!community.isEmpty()) {
+                    communities.add(community);
+                }
+            }
         }
         
         // 按社区大小排序
-        List<List<String>> communities = new ArrayList<>(communityMap.values());
         communities.sort((a, b) -> Integer.compare(b.size(), a.size()));
         
         // 计算模块度
@@ -73,6 +67,33 @@ public class CommunityDetector {
         cachedCommunities = Collections.unmodifiableList(communities);
         
         return cachedCommunities;
+    }
+    
+    /**
+     * BFS 遍历找到连通分量
+     */
+    private void bfsTraversal(String startVertex, List<String> community, Set<String> visited) {
+        Queue<String> queue = new LinkedList<>();
+        queue.offer(startVertex);
+        visited.add(startVertex);
+        
+        while (!queue.isEmpty()) {
+            String current = queue.poll();
+            community.add(current);
+            
+            Set<DefaultWeightedEdge> edges = graph.edgesOf(current);
+            for (DefaultWeightedEdge edge : edges) {
+                String neighbor = graph.getEdgeTarget(edge);
+                if (neighbor.equals(current)) {
+                    neighbor = graph.getEdgeSource(edge);
+                }
+                
+                if (!visited.contains(neighbor)) {
+                    visited.add(neighbor);
+                    queue.offer(neighbor);
+                }
+            }
+        }
     }
     
     /**
