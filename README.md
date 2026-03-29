@@ -328,7 +328,7 @@ MIT License
 
 ## 📧 联系方式
 
-如有问题或建议，请创建 Issue。
+如有问题或建议，请创建 Issue 或 发送email到niuyanno.1@outlook.com。
 
 ---
 
