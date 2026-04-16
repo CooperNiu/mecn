@@ -1,5 +1,10 @@
 # MECN - 高维宏观经济因果网络联动模型
 
+![Java CI](https://github.com/CooperNiu/mecn/actions/workflows/ci.yml/badge.svg)
+![Tests](https://img.shields.io/badge/tests-133%20passed-brightgreen)
+![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
+![License](https://img.shields.io/badge/license-MIT-blue)
+
 Macro Economic Causal Network (MECN) - 一个用于分析宏观经济指标间因果关系的复杂网络模型。
 
 ## 📊 项目简介
