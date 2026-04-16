@@ -3,6 +3,7 @@ package com.mecn.network;
 import com.mecn.MECNTools;
 import com.mecn.causal.CausalResult;
 import com.mecn.data.generator.EnhancedDataGenerator;
+import com.mecn.model.CentralityResult;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;

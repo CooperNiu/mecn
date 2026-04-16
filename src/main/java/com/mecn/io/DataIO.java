@@ -9,7 +9,7 @@ import java.util.List;
  * 
  * 定义从不同来源读取时间序列数据的标准契约
  */
-public interface DataReader {
+interface DataReader {
     
     /**
      * 从指定源读取数据

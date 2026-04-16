@@ -3,11 +3,14 @@ package com.mecn.data.provider;
 import com.mecn.model.EconomicIndicator;
 import com.mecn.model.TimeSeriesData;
 
+import javax.json.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -115,36 +118,97 @@ public class FredDataProvider implements DataProvider {
     /**
      * 解析 FRED API 响应
      * 
-     * 注意：这是一个简化实现，实际项目建议使用 Jackson 或 Gson 等 JSON 库
+     * FRED API 响应格式示例：
+     * {
+     *   "observations": [
+     *     {"date": "2020-01-01", "value": "123.45"},
+     *     {"date": "2020-02-01", "value": "124.56"}
+     *   ]
+     * }
      */
     private TimeSeriesData parseFredResponse(String jsonResponse, String seriesId) {
-        // 简化实现：这里应该使用 JSON 解析库
-        // 示例代码展示了如何解析 FRED 的 JSON 响应
-        // 实际使用时需要完善这部分代码
-        
         List<Double> values = new ArrayList<>();
         List<LocalDate> dates = new ArrayList<>();
         
-        // TODO: 使用 JSON 库解析响应（目前为简化实现）
-        // 实际使用时需要添加 Jackson 或 Gson 依赖
-        /*
-        JSONObject json = new JSONObject(jsonResponse);
-        JSONArray observations = json.getJSONArray("observations");
-        for (int i = 0; i < observations.length(); i++) {
-            JSONObject obs = observations.getJSONObject(i);
-            String dateStr = obs.getString("date");
-            String valueStr = obs.getString("value");
+        try {
+            // 使用 javax.json 解析 JSON 响应
+            JsonReader jsonReader = Json.createReader(new StringReader(jsonResponse));
+            JsonObject jsonObject = jsonReader.readObject();
+            jsonReader.close();
             
-            if (!".".equals(valueStr)) {
-                dates.add(LocalDate.parse(dateStr));
-                values.add(Double.parseDouble(valueStr));
+            JsonArray observations = jsonObject.getJsonArray("observations");
+            if (observations == null || observations.isEmpty()) {
+                return new TimeSeriesData(seriesId, new LocalDate[0], new double[0]);
             }
+            
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            
+            for (JsonValue observation : observations) {
+                JsonObject obs = (JsonObject) observation;
+                
+                // 获取日期
+                JsonValue dateJson = obs.get("date");
+                if (dateJson == null || dateJson.getValueType() != JsonValue.ValueType.STRING) {
+                    continue;
+                }
+                String dateStr = ((JsonString) dateJson).getString();
+                
+                // 获取值
+                JsonValue valueJson = obs.get("value");
+                if (valueJson == null || valueJson.getValueType() == JsonValue.ValueType.NULL) {
+                    continue;
+                }
+                
+                // 跳过缺失值（标记为 "."）
+                if (valueJson.getValueType() == JsonValue.ValueType.STRING) {
+                    String valueStr = ((JsonString) valueJson).getString();
+                    if (".".equals(valueStr)) {
+                        continue;
+                    }
+                }
+                
+                // 解析数值
+                Double value;
+                if (valueJson.getValueType() == JsonValue.ValueType.NUMBER) {
+                    value = ((JsonNumber) valueJson).doubleValue();
+                } else if (valueJson.getValueType() == JsonValue.ValueType.STRING) {
+                    try {
+                        String valueStr = ((JsonString) valueJson).getString();
+                        value = Double.parseDouble(valueStr);
+                    } catch (NumberFormatException e) {
+                        continue;
+                    }
+                } else {
+                    continue;
+                }
+                
+                // 解析日期
+                LocalDate date;
+                try {
+                    date = LocalDate.parse(dateStr, formatter);
+                } catch (Exception e) {
+                    continue;
+                }
+                
+                dates.add(date);
+                values.add(value);
+            }
+            
+            // 转换为数组
+            double[] valuesArray = values.stream().mapToDouble(Double::doubleValue).toArray();
+            LocalDate[] datesArray = dates.toArray(new LocalDate[0]);
+            
+            return new TimeSeriesData(seriesId, datesArray, valuesArray);
+            
+        } catch (JsonException e) {
+            System.err.println("JSON parsing error for series " + seriesId + ": " + e.getMessage());
+            e.printStackTrace();
+            return new TimeSeriesData(seriesId, new LocalDate[0], new double[0]);
+        } catch (Exception e) {
+            System.err.println("Unexpected error for series " + seriesId + ": " + e.getMessage());
+            e.printStackTrace();
+            return new TimeSeriesData(seriesId, new LocalDate[0], new double[0]);
         }
-        */
-        
-        // 临时返回空数据 - 需要完善 JSON 解析实现
-        // throw new UnsupportedOperationException("JSON parsing not implemented yet");
-        return null;
     }
     
     @Override

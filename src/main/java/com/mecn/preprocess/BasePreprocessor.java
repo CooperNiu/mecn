@@ -4,6 +4,8 @@ import com.mecn.model.TimeSeriesData;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
+
 /**
  * 预处理器抽象基类
  * 
@@ -36,7 +38,12 @@ public abstract class BasePreprocessor implements Preprocessor {
         
         logger.info("开始预处理流程，数据点数量: {}", rawData.getValues().length);
         
-        TimeSeriesData processed = rawData.clone();
+        // 创建数据的深拷贝
+        TimeSeriesData processed = new TimeSeriesData();
+        processed.setIndicatorCode(rawData.getIndicatorCode());
+        processed.setValues(Arrays.copyOf(rawData.getValues(), rawData.getValues().length));
+        processed.setDates(Arrays.copyOf(rawData.getDates(), rawData.getDates().length));
+        processed.setMetadata(new java.util.HashMap<>(rawData.getMetadata()));
         
         // 步骤1: 处理缺失值
         if (this.config.isHandleMissingValues()) {

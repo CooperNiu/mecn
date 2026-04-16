@@ -3,8 +3,10 @@ package com.mecn.data.provider;
 import com.mecn.model.EconomicIndicator;
 import com.mecn.model.TimeSeriesData;
 
+import javax.json.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
@@ -127,39 +129,82 @@ public class WorldBankDataProvider implements DataProvider {
     /**
      * 解析 World Bank API 响应
      * 
-     * 注意：这是一个简化实现，实际项目建议使用 Jackson 或 Gson 等 JSON 库
+     * World Bank API 响应格式示例：
+     * [
+     *   {"page": 1, "pages": 1, "per_page": 50, "total": 30},
+     *   [
+     *     {
+     *       "indicator": {"id": "NY.GDP.MKTP.CD", "value": "GDP"},
+     *       "country": {"id": "US", "value": "United States"},
+     *       "date": "2020",
+     *       "value": 20893746.58
+     *     }
+     *   ]
+     * ]
      */
     private TimeSeriesData parseWorldBankResponse(String jsonResponse, String indicatorId) {
-        // 简化实现：这里应该使用 JSON 解析库
-        // World Bank API 返回的格式：[{"page":...}, [{"indicator":..., "country":..., "date": "2020", "value": ...}]]
-        
         List<Double> values = new ArrayList<>();
         List<LocalDate> dates = new ArrayList<>();
         
-        // TODO: 使用 JSON 库解析响应（目前为简化实现）
-        // World Bank API 返回的格式：[[...]], [[...]]]
-        /*
-        JSONArray jsonArray = new JSONArray(jsonResponse);
-        JSONArray data = jsonArray.getJSONArray(1);
-        for (int i = 0; i < data.length(); i++) {
-            JSONObject item = data.getJSONObject(i);
-            String dateStr = item.getString("date");
-            Object valueObj = item.get("value");
+        try {
+            // 使用 javax.json 解析 JSON 响应
+            JsonReader jsonReader = Json.createReader(new StringReader(jsonResponse));
+            JsonArray jsonArray = jsonReader.readArray();
+            jsonReader.close();
             
-            if (valueObj != null && !"null".equals(valueObj.toString())) {
-                try {
-                    int year = Integer.parseInt(dateStr);
-                    dates.add(LocalDate.of(year, 1, 1));
-                    values.add(((Number) valueObj).doubleValue());
-                } catch (NumberFormatException e) {
-                    // 跳过无效的日期
+            // World Bank API 返回格式：[metadata, data]
+            // 数据在第二个元素（索引 1）
+            if (jsonArray.size() < 2) {
+                return new TimeSeriesData(indicatorId, new LocalDate[0], new double[0]);
+            }
+            
+            JsonArray dataArray = jsonArray.getJsonArray(1);
+            if (dataArray == null || dataArray.isEmpty()) {
+                return new TimeSeriesData(indicatorId, new LocalDate[0], new double[0]);
+            }
+            
+            for (JsonValue item : dataArray) {
+                JsonObject dataItem = (JsonObject) item;
+                String dateStr = dataItem.getString("date", null);
+                JsonValue valueObj = dataItem.get("value");
+                
+                // 跳过缺失值
+                if (dateStr != null && valueObj != null && !JsonValue.NULL.equals(valueObj)) {
+                    try {
+                        int year = Integer.parseInt(dateStr);
+                        Double value = null;
+                        
+                        if (valueObj.getValueType() == JsonValue.ValueType.NUMBER) {
+                            value = ((JsonNumber) valueObj).doubleValue();
+                        } else if (valueObj.getValueType() == JsonValue.ValueType.STRING) {
+                            // 尝试解析字符串形式的数字
+                            String valueStr = ((JsonString) valueObj).getString();
+                            if (!"null".equals(valueStr) && !valueStr.isEmpty()) {
+                                value = Double.parseDouble(valueStr);
+                            }
+                        }
+                        
+                        if (value != null) {
+                            dates.add(LocalDate.of(year, 1, 1));
+                            values.add(value);
+                        }
+                    } catch (Exception e) {
+                        // 跳过无法解析的数据
+                        System.err.println("Failed to parse data item: " + dateStr + " = " + valueObj);
+                    }
                 }
             }
+            
+            // 转换为数组
+            double[] valuesArray = values.stream().mapToDouble(Double::doubleValue).toArray();
+            LocalDate[] datesArray = dates.toArray(new LocalDate[0]);
+            
+            return new TimeSeriesData(indicatorId, datesArray, valuesArray);
+            
+        } catch (JsonException e) {
+            System.err.println("JSON parsing error for indicator " + indicatorId + ": " + e.getMessage());
+            return new TimeSeriesData(indicatorId, new LocalDate[0], new double[0]);
         }
-        */
-        
-        // 临时返回空数据 - 需要完善 JSON 解析实现
-        return null;
     }
     
     @Override

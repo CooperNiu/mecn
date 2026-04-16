@@ -122,12 +122,10 @@ public abstract class BaseDataProvider implements DataProvider {
     protected TimeSeriesData createEmptySeries(EconomicIndicator indicator, 
                                                 LocalDate startDate, 
                                                 LocalDate endDate) {
-        return new TimeSeriesData(
-            indicator.getCode(),
-            indicator.getName(),
-            new double[0],
-            new java.time.LocalDate[0],
-            indicator.getUnit()
-        );
+        TimeSeriesData series = new TimeSeriesData();
+        series.setIndicatorCode(indicator.getCode());
+        series.setValues(new double[0]);
+        series.setDates(new LocalDate[0]);
+        return series;
     }
 }

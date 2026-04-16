@@ -52,11 +52,11 @@ public class SeasonalAdjustmentTest {
         double[] strongSeasonal = new double[n];
         
         for (int i = 0; i < n; i++) {
-            strong_seasonal[i] = 100 + 10 * Math.sin(2 * Math.PI * i / 12) + Math.random();
+            strongSeasonal[i] = 100 + 10 * Math.sin(2 * Math.PI * i / 12) + Math.random();
         }
         
         SeasonalAdjustment adjustment = new SeasonalAdjustment();
-        adjustment.adjust(strong_seasonal);
+        adjustment.adjust(strongSeasonal);
         
         double strength = adjustment.calculateSeasonalityStrength();
         assertTrue(strength > 0 && strength <= 1.0);

@@ -199,16 +199,16 @@ mecn/
 │   ├── causal/                   # 因果发现引擎
 │   │   ├── CausalEngine          # 因果引擎接口
 │   │   ├── LassoRegression       # LASSO 实现
-│   │   ├── GrangerCausality      # Granger 检验 (TODO)
-│   │   ├── PCMCIAlgorithm        # PCMCI 算法 (TODO)
+│   │   ├── GrangerCausality      # Granger 因果检验
+│   │   ├── PCMCIAlgorithm        # PCMCI 算法
 │   │   └── EnsembleFusionStrategy # 集成融合策略
 │   ├── network/                  # 网络分析模块
 │   │   ├── NetworkBuilder        # 网络构建器
-│   │   ├── CentralityAnalyzer    # 中心性分析 (TODO)
-│   │   ├── CommunityDetector     # 社区检测 (TODO)
+│   │   ├── CentralityAnalyzer    # 中心性分析
+│   │   ├── CommunityDetector     # 社区检测
 │   │   └── RippleSimulator       # 涟漪效应模拟器
 │   ├── visualize/                # 可视化服务
-│   ├── report/                   # 报告生成 (TODO)
+│   ├── report/                   # 报告生成
 │   ├── api/                      # REST API 控制器
 │   └── config/                   # 配置类
 └── src/main/resources/

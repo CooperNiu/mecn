@@ -20,7 +20,7 @@ public class ADFTestTest {
             stationaryData[i] = random.nextGaussian() * 10;
         }
         
-        ADFTestadfTest = new ADFTest();
+        ADFTest adfTest = new ADFTest();
         ADFTest.ADFResult result = adfTest.test(stationaryData);
         
         assertNotNull(result);
@@ -44,7 +44,7 @@ public class ADFTestTest {
             nonStationaryData[i] = nonStationaryData[i - 1] + random.nextGaussian();
         }
         
-        ADFTestadfTest = new ADFTest();
+        ADFTest adfTest = new ADFTest();
         ADFTest.ADFResult result = adfTest.test(nonStationaryData);
         
         assertNotNull(result);
@@ -64,7 +64,7 @@ public class ADFTestTest {
             data[i] = random.nextGaussian();
         }
         
-        ADFTestadfTest = new ADFTest();
+        ADFTest adfTest = new ADFTest();
         ADFTest.ADFResult result = adfTest.test(data);
         
         // 测试访问器方法
@@ -92,7 +92,7 @@ public class ADFTestTest {
             data[i] = random.nextGaussian();
         }
         
-        ADFTestadfTest = new ADFTest();
+        ADFTest adfTest = new ADFTest();
         ADFTest.ADFResult result = adfTest.test(data);
         
         // 测试不同显著性水平下的判断
@@ -109,7 +109,7 @@ public class ADFTestTest {
     @Test
     public void testInsufficientData() {
         double[] shortData = new double[5];
-        ADFTestadfTest = new ADFTest();
+        ADFTest adfTest = new ADFTest();
         
         assertThrows(IllegalArgumentException.class, () -> {
             adfTest.test(shortData);
