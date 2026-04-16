@@ -95,9 +95,15 @@ public class LassoRegression extends CausalMethod {
         
         // 对每一个指标 i，用所有其他指标的滞后项进行回归
         for (int i = 0; i < N; i++) {
+            // 提取第 i 个变量的时间序列
+            double[] ySeries = new double[numSamples];
+            for (int t = 0; t < numSamples; t++) {
+                ySeries[t] = Y_cur[t][i];
+            }
+            
             // 简化的 OLS 回归估计
             // 实际应用中应该使用 Smile 的正确 LASSO API
-            double[] coefficients = estimateCoefficients(X_lag, Y_cur[i], numSamples, N);
+            double[] coefficients = estimateCoefficients(X_lag, ySeries, numSamples, N);
             
             // 填充因果矩阵：j -> i 的影响强度
             for (int j = 0; j < N; j++) {
