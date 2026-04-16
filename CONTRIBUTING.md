@@ -1,260 +1,162 @@
-# 贡献指南
+# 贡献指南 (Contributing to MECN)
 
-感谢您对 MECN 项目的关注！我们欢迎各种形式的贡献，包括代码提交、问题报告、功能建议、文档改进等。
+感谢您对 MECN (Macro Economic Causal Network) 项目的关注！我们欢迎各种形式的贡献，包括代码改进、文档完善、Bug 修复和功能建议。
 
 ## 📋 目录
 
-- [行为准则](#行为准则)
-- [如何参与](#如何参与)
+- [行为守则](#行为守则)
+- [如何贡献](#如何贡献)
 - [开发环境设置](#开发环境设置)
-- [提交代码流程](#提交代码流程)
 - [代码规范](#代码规范)
+- [提交规范](#提交规范)
+- [Pull Request 流程](#pull-request-流程)
 - [测试要求](#测试要求)
-- [提交信息规范](#提交信息规范)
+- [文档规范](#文档规范)
 
-## 行为准则
+## 行为守则
 
-请遵循以下原则：
-- **尊重他人**：保持友好和专业的交流氛围
-- **开放包容**：欢迎不同背景和经验贡献者
-- **建设性反馈**：提出问题的同时提供改进建议
+本项目采用 [Contributor Covenant](https://www.contributor-covenant.org/) 行为守则。参与此项目即表示您同意遵守其条款。请阅读 [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) 了解详情。
 
-## 如何参与
+## 如何贡献
 
-### 1. 报告问题
+### 1. 报告 Bug
 
-发现 bug 或有改进建议？请创建 Issue：
+如果您发现了 Bug，请在 GitHub Issues 中创建一个新的 Issue，并包含：
 
-- **Bug 报告**：提供详细的复现步骤、环境信息、错误日志
-- **功能建议**：说明使用场景、预期行为、可能的实现方案
-- **文档问题**：指出不准确或缺失的内容
+- **清晰的标题**：简明扼要地描述问题
+- **复现步骤**：详细说明如何复现该问题
+- **预期行为**：描述您期望的正确行为
+- **实际行为**：描述实际发生的情况
+- **环境信息**：Java 版本、操作系统、MECN 版本等
+- **相关日志**：如果有错误日志或堆栈跟踪，请一并提供
 
-### 2. 提交代码
+### 2. 提出新功能
 
-#### 简单修复（如拼写错误、文档更新）
-直接创建 Pull Request (PR)，在描述中说明修改内容。
+在实现新功能之前，请先：
 
-#### 功能开发或重大修改
-1. 先创建 Issue 讨论需求和设计方案
-2. 获得认可后再开始开发
-3. 完成开发后提交 PR
+1. 检查现有的 Issues 和 Pull Requests，确保没有重复
+2. 创建一个新的 Issue 讨论您的想法
+3. 等待维护者的反馈和批准
 
-### 3. 审查代码
+### 3. 提交代码
 
-欢迎帮助审查 PR，提出建设性的改进意见。
+1. Fork 本仓库
+2. 创建您的特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交您的更改 (`git commit -m 'feat: add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启一个 Pull Request
 
 ## 开发环境设置
 
 ### 前置要求
 
-- **JDK 版本**: JDK 17 或更高版本
-- **Maven**: Maven 3.6+
-- **Git**: Git 2.x+
+- **JDK 17+**（推荐 JDK 17 或更高版本）
+- **Maven 3.6+**
+- **Git**
 
 ### 快速开始
 
 ```bash
-# 1. Fork 项目
-点击右上角 Fork 按钮
-
-# 2. 克隆到本地
+# 1. Fork 并克隆仓库
 git clone https://github.com/YOUR_USERNAME/mecn.git
 cd mecn
 
-# 3. 设置 JDK 17+
+# 2. 添加上游远程仓库
+git remote add upstream https://github.com/ORIGINAL_OWNER/mecn.git
+
+# 3. 设置 JDK 17
 ./scripts/setup-jdk17.sh
 
 # 4. 编译项目
-mvn clean compile
+mvn clean install
 
 # 5. 运行测试
 mvn test
-
-# 6. 创建新分支
-git checkout -b feature/your-feature-name
-```
-
-## 提交代码流程
-
-### 1. 分支命名
-
-- **新功能**: `feature/功能简述`
-- **Bug 修复**: `fix/问题简述`
-- **文档更新**: `docs/更新简述`
-- **重构**: `refactor/重构简述`
-- **性能优化**: `perf/优化简述`
-
-### 2. 开发流程
-
-```bash
-# 同步主分支
-git fetch upstream
-git checkout main
-git rebase upstream/main
-
-# 切换到开发分支
-git checkout feature/your-feature
-
-# 开发完成后合并主分支最新代码
-git fetch upstream
-git rebase upstream/main
-
-# 推送到远程
-git push origin feature/your-feature
-```
-
-### 3. 创建 Pull Request
-
-1. 在 GitHub 上访问您的 fork
-2. 点击 "Compare & pull request"
-3. 填写 PR 描述（参考下方模板）
-4. 等待 CI 检查和代码审查
-
-### PR 模板
-
-```markdown
-## 变更类型
-<!-- 请选择适用的类型 -->
-- [ ] 新功能
-- [ ] Bug 修复
-- [ ] 文档更新
-- [ ] 代码重构
-- [ ] 性能优化
-- [ ] 其他（请说明）
-
-## 变更描述
-<!-- 详细说明此 PR 的变更内容 -->
-
-## 相关 Issue
-<!-- 关联相关的 Issue，例如 Fixes #123 -->
-
-## 测试情况
-<!-- 说明已进行的测试 -->
-- [ ] 单元测试通过
-- [ ] 集成测试通过
-- [ ] 手动测试完成
-
-## 检查清单
-- [ ] 代码遵循项目规范
-- [ ] 已添加必要的单元测试
-- [ ] 更新了相关文档
-- [ ] 无新的编译警告
 ```
 
 ## 代码规范
 
 ### Java 编码规范
 
+我们遵循 [Google Java Style Guide](https://google.github.io/styleguide/javaguide.html)，主要要点：
+
 #### 命名规范
-```java
-// 类名：大驼峰
-public class CausalEngine { }
+- **类名**：使用 PascalCase（大驼峰），如 `CausalEngine`
+- **方法名**：使用 camelCase（小驼峰），如 `discoverCausalRelations`
+- **常量**：使用 UPPER_SNAKE_CASE，如 `MAX_ITERATIONS`
+- **变量**：使用 camelCase，具有描述性，避免单字母（除循环变量外）
 
-// 方法名：小驼峰
-public void discoverCausal() { }
-
-// 变量名：小驼峰
-private int maxLag;
-
-// 常量：全大写，下划线分隔
-private static final double DEFAULT_THRESHOLD = 0.05;
-
-// 泛型：单字母大写
-public class Result<T> { }
-```
+#### 代码格式
+- 使用 2 个空格缩进
+- 每行最多 100 个字符
+- 方法之间空一行
+- 相关的代码块之间空两行
 
 #### 注释规范
+- **类注释**：每个公共类必须有 Javadoc 注释
+- **方法注释**：公共方法必须有 Javadoc，包括 @param、@return、@throws
+- **行内注释**：解释"为什么"而不是"是什么"
+- **TODO 注释**：使用 `// TODO: 描述` 格式
+
+#### 示例
+
 ```java
 /**
- * 执行因果发现分析
+ * 因果发现引擎接口
  * 
- * @param data 时间序列数据 [T][N]
- * @param config 配置参数
- * @return 因果发现结果
- * @throws IllegalArgumentException 当数据格式不正确时
+ * 定义因果挖掘的核心契约，支持多种因果发现算法的注册和执行
+ * 
+ * @author MECN Team
+ * @since 1.0.0
  */
-public CausalResult discover(double[][] data, CausalConfig config);
-```
-
-#### 代码风格
-- 使用 4 个空格缩进
-- 行宽不超过 120 字符
-- 方法长度不超过 50 行
-- 类长度不超过 500 行
-- 避免过深的嵌套（不超过 4 层）
-
-### 最佳实践
-
-```java
-// ✅ 推荐：清晰的变量命名
-List<EconomicIndicator> indicators = new ArrayList<>();
-
-// ❌ 不推荐：模糊的缩写
-List<EI> list = new ArrayList<>();
-
-// ✅ 推荐：使用 Stream API 简化集合操作
-indicators.stream()
-    .filter(i -> i.getCategory() == Category.MACRO)
-    .map(EconomicIndicator::getCode)
-    .collect(Collectors.toList());
-
-// ❌ 不推荐：冗长的循环
-List<String> codes = new ArrayList<>();
-for (EconomicIndicator indicator : indicators) {
-    if (indicator.getCategory() == Category.MACRO) {
-        codes.add(indicator.getCode());
-    }
+public interface CausalEngine {
+    
+    /**
+     * 执行因果发现
+     * 
+     * @param data 时间序列数据矩阵 [T][N]，T 为时间点数，N 为指标数
+     * @param config 因果发现配置
+     * @return 因果图（包含邻接矩阵和置信度）
+     * @throws IllegalArgumentException 如果数据为空或配置无效
+     */
+    CausalResult discover(double[][] data, CausalConfig config);
 }
 ```
 
-## 测试要求
+### 异常处理
 
-### 单元测试
-
-所有新功能必须包含单元测试：
+- 使用项目统一的 `MECNException` 及其子类
+- 提供有意义的错误消息
+- 记录适当的日志级别（ERROR、WARN、INFO、DEBUG）
 
 ```java
-@DisplayName("验证 Granger 因果检验的正确性")
-@Test
-void testGrangerCausality() {
-    // Given: 准备测试数据
-    double[][] testData = createTestData();
-    
-    // When: 执行因果发现
-    GrangerCausality granger = new GrangerCausality();
-    CausalResult result = granger.discover(testData);
-    
-    // Then: 验证结果
-    assertThat(result.getEdges()).isNotEmpty();
-    assertThat(result.getPValue()).isLessThan(0.05);
+if (data == null || data.length == 0) {
+    logger.error("输入数据为空");
+    throw new MECNException(
+        MECNException.ErrorCode.DATA_VALIDATION_ERROR,
+        "输入数据不能为空"
+    );
 }
 ```
 
-### 覆盖率要求
+### 日志规范
 
-- 新增代码行覆盖率 ≥ 90%
-- 分支覆盖率 ≥ 85%
-- 关键算法必须 100% 覆盖
+使用 SLF4J + Logback：
 
-### 运行测试
+```java
+private static final Logger logger = LoggerFactory.getLogger(YourClass.class);
 
-```bash
-# 运行所有测试
-mvn test
-
-# 运行特定测试类
-mvn test -Dtest=CausalEngineTest
-
-# 生成覆盖率报告
-mvn clean test jacoco:report
-
-# 查看覆盖率报告
-open target/site/jacoco/index.html
+logger.info("开始处理 {} 个指标", indicatorCount);
+logger.debug("参数配置: {}", config);
+logger.warn("检测到 {} 个缺失值", missingCount);
+logger.error("处理失败", exception);
 ```
 
-## 提交信息规范
+## 提交规范
 
-### Commit Message 格式
+我们遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范。
+
+### 提交消息格式
 
 ```
 <type>(<scope>): <subject>
@@ -266,107 +168,268 @@ open target/site/jacoco/index.html
 
 ### Type 类型
 
-- `feat`: 新功能
-- `fix`: Bug 修复
-- `docs`: 文档更新
-- `style`: 代码格式调整
-- `refactor`: 重构
-- `perf`: 性能优化
-- `test`: 测试相关
-- `chore`: 构建、依赖等杂项
-
-### Scope 范围
-
-- `causal`: 因果发现引擎
-- `network`: 网络分析
-- `data`: 数据层
-- `api`: REST API
-- `web`: Web 前端
-- `docs`: 文档
-- `build`: 构建配置
-
-### Subject 主题
-
-- 使用祈使句："add" 而不是 "added" 或 "adds"
-- 首字母小写
-- 不使用句号结尾
-- 长度不超过 50 字符
-
-### Body 正文（可选）
-
-- 详细说明变更动机
-- 对比变更前后行为
-- 说明设计决策的理由
-
-### Footer 页脚（可选）
-
-- 关联 Issue：`Fixes #123`
-- 破坏性变更：`BREAKING CHANGE: ...`
+- **feat**: 新功能
+- **fix**: Bug 修复
+- **docs**: 文档更新
+- **style**: 代码格式（不影响代码运行）
+- **refactor**: 代码重构
+- **test**: 测试相关
+- **chore**: 构建过程或辅助工具的变动
+- **perf**: 性能优化
 
 ### 示例
 
+```bash
+# 新功能
+git commit -m "feat(causal): 添加 Transfer Entropy 算法支持"
+
+# Bug 修复
+git commit -m "fix(network): 修复中心性计算中的空指针异常"
+
+# 文档更新
+git commit -m "docs: 更新 API 文档和使用示例"
+
+# 代码重构
+git commit -m "refactor(preprocess): 提取预处理器抽象基类"
+
+# 测试
+git commit -m "test(causal): 增加 LASSO 算法的边界测试用例"
 ```
-feat(causal): add Granger causality test implementation
 
-- 实现基于 VAR 模型的 Granger 因果检验
-- 支持 F 统计量和 p 值计算
-- 自动选择最优滞后阶数（AIC 准则）
+### 详细提交示例
 
-Fixes #45
+```bash
+git commit -m "feat(causal): 添加自动超参数调优功能
 
-BREAKING CHANGE: CausalMethod 接口增加 getLagOrder() 方法
+- 实现 LASSO λ 参数的交叉验证自动搜索
+- 支持网格搜索和贝叶斯优化两种策略
+- 添加模型评估指标输出（AIC、BIC、R²）
+
+Closes #123"
 ```
 
-## 文档贡献
+## Pull Request 流程
 
-### 更新 README.md
+### 1. 准备工作
 
-确保 README.md 包含：
-- 清晰的项目介绍
-- 快速开始指南
-- 核心功能说明
-- 使用示例
+```bash
+# 同步上游仓库
+git fetch upstream
+git checkout main
+git merge upstream/main
 
-### 更新技术文档
+# 创建特性分支
+git checkout -b feature/your-feature-name
+```
 
-- API 变更及时更新 `docs/API_USAGE.md`
-- 部署流程变更更新 `docs/DEPLOYMENT.md`
-- 测试方法变更更新 `docs/TESTING.md`
+### 2. 开发
 
-### 代码注释
+- 小步提交，每次提交都有明确的目的
+- 编写测试用例
+- 更新相关文档
+- 确保代码通过所有测试
 
-- public 方法必须有 Javadoc
-- 复杂算法需要详细注释
-- 使用中文注释（考虑到团队主要使用中文）
+### 3. 提交前检查清单
+
+- [ ] 代码符合编码规范
+- [ ] 添加了必要的单元测试
+- [ ] 所有测试通过 (`mvn test`)
+- [ ] 代码覆盖率满足要求（>90%）
+- [ ] 更新了相关文档
+- [ ] 提交消息符合规范
+- [ ] 没有遗留的调试代码或注释
+
+### 4. 提交 PR
+
+1. 推送您的分支到 GitHub
+2. 在 GitHub 上创建 Pull Request
+3. 填写 PR 模板：
+   - **描述**：清晰说明这个 PR 做了什么
+   - **相关 Issue**：关联相关的 Issue（如 `Closes #123`）
+   - **测试**：说明如何测试这些更改
+   - **截图**：如果有 UI 变化，提供截图
+
+### 5. Code Review
+
+- 至少需要 1 个维护者审核通过
+- 根据反馈进行修改
+- 保持友好的讨论氛围
+
+### 6. 合并
+
+- 维护者会将您的 PR 合并到主分支
+- 删除特性分支
+
+## 测试要求
+
+### 单元测试
+
+- 每个公共方法都应有对应的单元测试
+- 测试覆盖率要求：
+  - 指令覆盖率：≥ 90%
+  - 分支覆盖率：≥ 85%
+- 使用 JUnit 5 + Mockito + AssertJ
+
+```java
+@Test
+void testDiscoverWithValidData() {
+    // Given
+    double[][] data = generateTestData();
+    CausalConfig config = new CausalConfig();
+    
+    // When
+    CausalResult result = engine.discover(data, config);
+    
+    // Then
+    assertThat(result).isNotNull();
+    assertThat(result.getAdjacencyMatrix()).hasDimensions(N, N);
+    assertThat(result.getMethodName()).isEqualTo("ensemble");
+}
+```
+
+### 集成测试
+
+- 测试模块间的交互
+- 测试完整的业务流程
+- 标记为 `@IntegrationTest`
+
+### 运行测试
+
+```bash
+# 运行所有测试
+mvn test
+
+# 运行特定测试类
+mvn test -Dtest=CausalEngineImplTest
+
+# 生成覆盖率报告
+mvn jacoco:report
+
+# 查看报告
+open target/site/jacoco/index.html
+```
+
+## 文档规范
+
+### README 更新
+
+任何功能性更改都应更新 README.md：
+
+- 新功能的说明
+- API 变更的说明
+- 配置项的更新
+- 使用示例的补充
+
+### JavaDoc
+
+所有公共 API 必须有完整的 JavaDoc：
+
+```java
+/**
+ * 构建因果网络
+ * 
+ * <p>根据因果发现结果和网络配置，构建有向加权图。</p>
+ * 
+ * @param causalResult 因果发现结果
+ * @param nodeNames 节点名称列表
+ * @return 构建好的网络图
+ * @throws IllegalArgumentException 如果输入参数无效
+ * @see CausalResult
+ * @see NetworkGraph
+ */
+public NetworkGraph build(CausalResult causalResult, List<String> nodeNames) {
+    // ...
+}
+```
+
+### 示例代码
+
+在文档中提供可运行的示例代码：
+
+```java
+// 1. 准备数据
+List<EconomicIndicator> indicators = Arrays.asList(
+    new EconomicIndicator("GDP", "国内生产总值"),
+    new EconomicIndicator("CPI", "消费者价格指数")
+);
+
+// 2. 获取数据
+DataProvider provider = new SimulatedDataProvider();
+List<TimeSeriesData> data = provider.fetch(indicators, startDate, endDate);
+
+// 3. 预处理
+Preprocessor preprocessor = new DefaultPreprocessor();
+TimeSeriesData processed = preprocessor.process(data.get(0), config);
+
+// 4. 因果发现
+CausalEngine engine = CausalEngineBuilder.create()
+    .addMethod(new GrangerCausality())
+    .addMethod(new LassoRegression())
+    .build();
+
+CausalResult result = engine.discover(dataMatrix, config);
+
+// 5. 网络分析
+NetworkGraph graph = networkBuilder.build(result, nodeNames);
+List<CentralityResult> centralities = centralityAnalyzer.analyze(graph);
+```
 
 ## 发布流程
 
-### 版本号规则
+### 版本号规范
 
-遵循语义化版本（Semantic Versioning）：
+遵循 [Semantic Versioning](https://semver.org/lang/zh-CN/)：
 
-- **MAJOR.MINOR.PATCH** (例如：1.2.3)
-- MAJOR: 破坏性变更
-- MINOR: 向后兼容的新功能
-- PATCH: 向后兼容的问题修复
+- **MAJOR.MINOR.PATCH**（主版本号.次版本号.修订号）
+- **MAJOR**：不兼容的 API 变更
+- **MINOR**：向后兼容的功能新增
+- **PATCH**：向后兼容的问题修正
 
-### 发布检查清单
+### 发布步骤
 
-- [ ] 所有测试通过
-- [ ] 代码覆盖率达标
-- [ ] 更新 CHANGELOG.md
-- [ ] 更新版本号（pom.xml）
-- [ ] 更新文档
-- [ ] 创建 Release Tag
+1. 更新版本号（pom.xml）
+2. 更新 CHANGELOG.md
+3. 创建 Git Tag
+4. 构建并发布
+5. 在 GitHub 创建 Release
 
-## 联系方式
+## 常见问题
 
-如有疑问，欢迎通过以下方式联系：
+### Q: 我的 PR 多久会被审核？
 
-- 创建 GitHub Issue
-- 发送邮件至项目维护者
-- 参与项目讨论区
+A: 我们尽量在 3-5 个工作日内审核所有 PR。如果超过一周没有回应，可以礼貌地 @ 维护者。
+
+### Q: 我可以同时提交多个 PR 吗？
+
+A: 可以，但建议每个 PR 专注于一个功能或修复。相关的更改可以放在同一个 PR 中。
+
+### Q: 如何保持我的 Fork 与上游同步？
+
+```bash
+git fetch upstream
+git checkout main
+git merge upstream/main
+git push origin main
+```
+
+### Q: 测试失败怎么办？
+
+A: 
+1. 检查是否是您的更改导致的问题
+2. 在本地运行测试确认
+3. 查看 CI 日志了解详细信息
+4. 如有需要，在 Issue 中寻求帮助
+
+## 联系我们
+
+- **GitHub Issues**: [https://github.com/mecn-project/mecn/issues](https://github.com/mecn-project/mecn/issues)
+- **Email**: mecn-team@example.com
+- **Discussion**: [https://github.com/mecn-project/mecn/discussions](https://github.com/mecn-project/mecn/discussions)
+
+## 致谢
+
+感谢所有为 MECN 项目做出贡献的开发者！🎉
 
 ---
 
-感谢您的贡献！🎉
+**最后更新**: 2026-04-16
