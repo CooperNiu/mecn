@@ -394,4 +394,211 @@ public class GrangerCausality extends CausalMethod {
         // 基于 F 统计量的稳定性
         return 1.0 - significanceLevel;
     }
+    
+    /**
+     * 自动调优 Lag 参数（使用信息准则）
+     * 
+     * @param data 时间序列数据
+     * @return 超参数调优结果
+     */
+    public HyperparameterResult autoTuneLag(double[][] data) {
+        // 默认的 lag 候选值
+        int[] defaultLags = {1, 2, 3, 4, 5, 6, 7, 8};
+        return autoTuneLag(data, defaultLags);
+    }
+    
+    /**
+     * 自动调优 Lag 参数（自定义候选值）
+     * 
+     * @param data 时间序列数据
+     * @param lagCandidates 候选 lag 值数组
+     * @return 超参数调优结果
+     */
+    public HyperparameterResult autoTuneLag(double[][] data, int[] lagCandidates) {
+        long startTime = System.currentTimeMillis();
+        
+        if (lagCandidates == null || lagCandidates.length == 0) {
+            lagCandidates = new int[]{1, 2, 3, 4, 5, 6, 7, 8};
+        }
+        
+        HyperparameterResult result = new HyperparameterResult(getName());
+        result.setTuningMethod("information_criteria");
+        
+        int T = data.length;
+        int N = data[0].length;
+        
+        double[] aicScores = new double[lagCandidates.length];
+        double[] bicScores = new double[lagCandidates.length];
+        double[] rSquaredScores = new double[lagCandidates.length];
+        
+        // 对每个候选 lag 计算信息准则
+        for (int i = 0; i < lagCandidates.length; i++) {
+            int lag = lagCandidates[i];
+            
+            if (lag >= T - 1) {
+                // lag 太大，跳过
+                aicScores[i] = Double.MAX_VALUE;
+                bicScores[i] = Double.MAX_VALUE;
+                rSquaredScores[i] = 0.0;
+                continue;
+            }
+            
+            // 计算该 lag 下的模型指标
+            double[] metrics = calculateModelMetrics(data, lag);
+            aicScores[i] = metrics[0];
+            bicScores[i] = metrics[1];
+            rSquaredScores[i] = metrics[2];
+        }
+        
+        // 使用 AIC 和 BIC 的加权平均选择最优 lag
+        double[] combinedScores = new double[lagCandidates.length];
+        for (int i = 0; i < lagCandidates.length; i++) {
+            // 归一化 AIC 和 BIC
+            double minAIC = java.util.Arrays.stream(aicScores).min().orElse(0);
+            double maxAIC = java.util.Arrays.stream(aicScores).max().orElse(1);
+            double minBIC = java.util.Arrays.stream(bicScores).min().orElse(0);
+            double maxBIC = java.util.Arrays.stream(bicScores).max().orElse(1);
+            
+            double normAIC = maxAIC != minAIC ? (aicScores[i] - minAIC) / (maxAIC - minAIC) : 0;
+            double normBIC = maxBIC != minBIC ? (bicScores[i] - minBIC) / (maxBIC - minBIC) : 0;
+            
+            // AIC 和 BIC 越小越好，所以取反
+            combinedScores[i] = -(0.5 * normAIC + 0.5 * normBIC);
+        }
+        
+        result.setLambdaCandidates(java.util.Arrays.stream(lagCandidates)
+            .asDoubleStream()
+            .toArray());
+        result.setCvScores(combinedScores);
+        
+        // 找到最优的 lag
+        int bestIndex = 0;
+        double bestScore = combinedScores[0];
+        for (int i = 1; i < combinedScores.length; i++) {
+            if (combinedScores[i] > bestScore) {
+                bestScore = combinedScores[i];
+                bestIndex = i;
+            }
+        }
+        
+        int bestLag = lagCandidates[bestIndex];
+        result.setBestLambda(bestLag);
+        result.setCrossValidationScore(bestScore);
+        
+        // 设置模型评估指标
+        double[] bestMetrics = calculateModelMetrics(data, bestLag);
+        result.setAIC(bestMetrics[0]);
+        result.setBIC(bestMetrics[1]);
+        result.setRSquared(bestMetrics[2]);
+        
+        long endTime = System.currentTimeMillis();
+        result.setExecutionTimeMs(endTime - startTime);
+        
+        // 生成建议
+        String recommendation = generateLagRecommendation(bestLag, bestMetrics, T, N);
+        result.setRecommendation(recommendation);
+        
+        return result;
+    }
+    
+    /**
+     * 获取最优显著性水平
+     * 
+     * @param data 时间序列数据
+     * @return 最优显著性水平
+     */
+    public double getOptimalSignificanceLevel(double[][] data) {
+        int T = data.length;
+        int N = data[0].length;
+        
+        // 根据样本量调整显著性水平
+        // 大样本使用更严格的显著性水平
+        if (T > 200) {
+            return 0.01;  // 更严格
+        } else if (T > 100) {
+            return 0.05;  // 标准
+        } else {
+            return 0.10;  // 较宽松
+        }
+    }
+    
+    // ==================== 私有辅助方法 ====================
+    
+    /**
+     * 计算模型评估指标 (AIC, BIC, R²)
+     */
+    private double[] calculateModelMetrics(double[][] data, int lag) {
+        int T = data.length - lag;
+        int N = data[0].length;
+        
+        if (T <= 0) {
+            return new double[]{Double.MAX_VALUE, Double.MAX_VALUE, 0.0};
+        }
+        
+        // 计算残差平方和
+        double rss = 0.0;
+        double tss = 0.0;
+        
+        // 计算均值
+        double[] means = new double[N];
+        for (int t = lag; t < data.length; t++) {
+            for (int i = 0; i < N; i++) {
+                means[i] += data[t][i];
+            }
+        }
+        for (int i = 0; i < N; i++) {
+            means[i] /= T;
+        }
+        
+        // 简化的 VAR 模型拟合
+        for (int t = lag; t < data.length; t++) {
+            for (int i = 0; i < N; i++) {
+                // 简化预测：使用前一个时间点
+                double predicted = data[t-1][i];
+                double actual = data[t][i];
+                
+                rss += Math.pow(actual - predicted, 2);
+                tss += Math.pow(actual - means[i], 2);
+            }
+        }
+        
+        // R²
+        double rSquared = tss > 0 ? 1.0 - (rss / tss) : 0.0;
+        rSquared = Math.max(0.0, Math.min(1.0, rSquared));
+        
+        // 参数数量：每个变量的 lag 个自回归系数 + 截距
+        int k = N * (N * lag + 1);
+        
+        // AIC = n*ln(RSS/n) + 2k
+        double aic = T * Math.log(rss / T + 1e-10) + 2 * k;
+        
+        // BIC = n*ln(RSS/n) + k*ln(n)
+        double bic = T * Math.log(rss / T + 1e-10) + k * Math.log(T);
+        
+        return new double[]{aic, bic, rSquared};
+    }
+    
+    /**
+     * 生成 lag 选择建议
+     */
+    private String generateLagRecommendation(int bestLag, double[] metrics, int T, int N) {
+        StringBuilder sb = new StringBuilder();
+        
+        if (bestLag <= 2) {
+            sb.append("最优 Lag 较小，表明数据的短期依赖性较强。");
+        } else if (bestLag <= 5) {
+            sb.append("最优 Lag 适中，平衡了模型复杂度和拟合效果。");
+        } else {
+            sb.append("最优 Lag 较大，可能存在长期依赖关系。建议检查数据平稳性。");
+        }
+        
+        sb.append(String.format("\nR²=%.3f 表明模型解释了 %.1f%% 的方差。", 
+            metrics[2], metrics[2] * 100));
+        
+        if (T < 50) {
+            sb.append("\n注意：样本量较小，建议选择较小的 Lag 以避免过拟合。");
+        }
+        
+        return sb.toString();
+    }
 }
