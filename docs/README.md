@@ -20,16 +20,22 @@
 | Document / 文档 | Description / 描述 | Language / 语言 |
 |----------------|-------------------|----------------|
 | [Module Structure](dev/MODULE_STRUCTURE.md) | Module architecture details / 模块架构详情 | 🇨🇳 CN |
+| [Module Structure (EN)](dev/MODULE_STRUCTURE_EN.md) | Module architecture details | 🇺🇸 EN |
 | [TDD Practice Record](dev/TDD_PRACTICE_RECORD.md) | Test-driven development records / TDD开发实践记录 | 🇨🇳 CN |
+| [TDD Practice Record (EN)](dev/TDD_PRACTICE_RECORD_EN.md) | TDD development records | 🇺🇸 EN |
 | [Testing Guide](dev/TESTING.md) | Testing practices and guidelines / 测试实践和指南 | 🇨🇳 CN |
+| [Testing Guide (EN)](dev/TESTING_EN.md) | Testing practices and guidelines | 🇺🇸 EN |
 
 ### Deployment & Operations / 部署与运维
 
 | Document / 文档 | Description / 描述 | Language / 语言 |
 |----------------|-------------------|----------------|
 | [Deployment Guide](ops/DEPLOYMENT.md) | Deployment instructions / 部署说明 | 🇨🇳 CN |
+| [Deployment Guide (EN)](ops/DEPLOYMENT_EN.md) | Docker deployment guide | 🇺🇸 EN |
 | [CI/CD Guide](ops/CICD_GUIDE.md) | Continuous integration/deployment / 持续集成/部署 | 🇨🇳 CN |
+| [CI/CD Guide (EN)](ops/CICD_GUIDE_EN.md) | CI/CD configuration guide | 🇺🇸 EN |
 | [MkDocs Guide](ops/MKDOCS_GUIDE.md) | Documentation site building / 文档站点构建 | 🇨🇳 CN |
+| [MkDocs Guide (EN)](ops/MKDOCS_GUIDE_EN.md) | MkDocs documentation site guide | 🇺🇸 EN |
 
 ### Project Management / 项目管理
 

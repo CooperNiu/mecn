@@ -20,16 +20,22 @@
 | 文档 | 描述 | 语言 |
 |------|------|------|
 | [模块结构说明](dev/MODULE_STRUCTURE.md) | 模块架构详细说明 | 🇨🇳 中文 |
+| [Module Structure (EN)](dev/MODULE_STRUCTURE_EN.md) | Module architecture details | 🇺🇸 English |
 | [TDD实践记录](dev/TDD_PRACTICE_RECORD.md) | 测试驱动开发实践记录 | 🇨🇳 中文 |
+| [TDD Practice Record (EN)](dev/TDD_PRACTICE_RECORD_EN.md) | TDD development records | 🇺🇸 English |
 | [测试指南](dev/TESTING.md) | 测试实践和指南 | 🇨🇳 中文 |
+| [Testing Guide (EN)](dev/TESTING_EN.md) | Testing practices and guidelines | 🇺🇸 English |
 
 ### 部署与运维
 
 | 文档 | 描述 | 语言 |
 |------|------|------|
 | [部署指南](ops/DEPLOYMENT.md) | 部署说明和配置 | 🇨🇳 中文 |
+| [Deployment Guide (EN)](ops/DEPLOYMENT_EN.md) | Docker deployment guide | 🇺🇸 English |
 | [CI/CD指南](ops/CICD_GUIDE.md) | 持续集成/持续部署 | 🇨🇳 中文 |
+| [CI/CD Guide (EN)](ops/CICD_GUIDE_EN.md) | CI/CD configuration guide | 🇺🇸 English |
 | [MkDocs指南](ops/MKDOCS_GUIDE.md) | 文档站点构建指南 | 🇨🇳 中文 |
+| [MkDocs Guide (EN)](ops/MKDOCS_GUIDE_EN.md) | MkDocs documentation site guide | 🇺🇸 English |
 
 ### 项目管理
 
