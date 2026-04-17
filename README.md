@@ -43,6 +43,13 @@ MECN 将常规经济指标视为一个相互连接、动态演化的复杂网络
 - **PDF 分析报告**：包含执行摘要、网络统计、中心性分析、关键发现
 - **可视化导出**：D3.js 力导向图 JSON 格式
 
+### 7. 命令行工具 (CLI)
+- **完整的 CLI 界面**：支持 analyze、preprocess、visualize 等命令
+- **灵活的参数配置**：长短参数格式、等号格式支持
+- **CSV 数据导入**：支持从 CSV 文件读取时间序列数据
+- **实时进度显示**：美观的控制台输出和进度提示
+- **详细文档**：完整的使用指南和示例
+
 ## 🚀 快速开始
 
 ### 环境要求
@@ -94,6 +101,36 @@ java -jar target/mecn-1.jar
 - **或使用 HTTP 服务器**: `python3 -m http.server 8080 -d src/main/resources/static`
 
 > **注意**: 前端默认使用模拟数据，如需连接后端 API，需修改 `index.html` 中的 API 调用。
+
+#### 方式 3: 命令行工具（CLI）
+
+**快速开始：**
+
+```bash
+# 编译项目
+mvn clean package -DskipTests
+
+# 显示帮助信息
+java -cp target/classes:$(mvn dependency:build-classpath -q -Dmdep.outputFile=/dev/stdout) \
+  com.mecn.MECNCLI --help
+
+# 使用模拟数据执行分析
+java -cp target/classes:$(mvn dependency:build-classpath -q -Dmdep.outputFile=/dev/stdout) \
+  com.mecn.MECNCLI
+
+# 从 CSV 文件执行分析
+java -cp target/classes:$(mvn dependency:build-classpath -q -Dmdep.outputFile=/dev/stdout) \
+  com.mecn.MECNCLI -i examples/sample_data.csv
+
+# 指定算法和参数
+java -cp target/classes:$(mvn dependency:build-classpath -q -Dmdep.outputFile=/dev/stdout) \
+  com.mecn.MECNCLI \
+  --algorithm ensemble \
+  --max-lag 3 \
+  -i examples/sample_data.csv
+```
+
+**详细文档**: [CLI 使用指南](docs/CLI_USAGE_GUIDE.md)
 
 #### 方式 2: Docker 部署（生产环境推荐）
 
