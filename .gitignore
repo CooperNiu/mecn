@@ -63,6 +63,7 @@ local.properties
 *.ipr
 out/
 .idea_modules/
+.lingma/
 
 # NetBeans
 /nbproject/private/

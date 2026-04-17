@@ -1,9 +1,12 @@
 # MECN - 高维宏观经济因果网络联动模型
 
 ![Java CI](https://github.com/CooperNiu/mecn/actions/workflows/ci.yml/badge.svg)
-![Tests](https://img.shields.io/badge/tests-133%20passed-brightgreen)
+![Tests](https://img.shields.io/badge/tests-201%20passed-brightgreen)
 ![Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
+![Version](https://img.shields.io/badge/version-v1.5.0--dev-blue)
+
+**Languages**: [中文](README.md) | [English](README_EN.md)
 
 Macro Economic Causal Network (MECN) - 一个用于分析宏观经济指标间因果关系的复杂网络模型。
 
@@ -331,10 +334,16 @@ mvn test -Dtest=LassoRegressionTest
 
 ## 📚 文档
 
-- **[项目主页](https://mecn-project.github.io/)** - 完整的在线文档网站
+**文档索引**: [docs/README.md](docs/README.md) - 完整的文档导航和分类
+
+- **[项目进展报告](docs/PROJECT_PROGRESS_REPORT.md)** - 当前开发状态和进度
+- **[CLI使用指南](docs/CLI_USAGE_GUIDE.md)** - 命令行工具完整文档
 - **[API 使用指南](docs/API_USAGE.md)** - 详细的 API 使用说明
 - **[部署指南](docs/DEPLOYMENT.md)** - Docker 部署和配置
+- **[CI/CD指南](docs/CICD_GUIDE.md)** - 持续集成/部署流程
 - **[测试指南](docs/TESTING.md)** - 测试模块说明和覆盖率报告
+- **[模块结构说明](docs/MODULE_STRUCTURE.md)** - 模块架构详情
+- **[TDD实践记录](docs/TDD_PRACTICE_RECORD.md)** - TDD开发实践记录
 - **[贡献指南](CONTRIBUTING.md)** - 如何参与项目贡献
 - **[变更日志](CHANGELOG.md)** - 版本历史记录
 
