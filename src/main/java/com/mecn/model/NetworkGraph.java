@@ -154,6 +154,23 @@ public class NetworkGraph {
         return indicators;
     }
     
+    /**
+     * 获取节点属性
+     */
+    public Map<String, Object> getNodeAttributes(String nodeId) {
+        // 查找对应的经济指标
+        for (EconomicIndicator indicator : indicators) {
+            if (indicator != null && indicator.getCode() != null && indicator.getCode().equals(nodeId)) {
+                Map<String, Object> attrs = new HashMap<>();
+                attrs.put("name", indicator.getName());
+                attrs.put("code", indicator.getCode());
+                attrs.put("source", indicator.getSource());
+                return attrs;
+            }
+        }
+        return null;
+    }
+    
     @Override
     public String toString() {
         return "NetworkGraph{" +
