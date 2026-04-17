@@ -109,7 +109,7 @@ java -cp target/classes:$(mvn dependency:build-classpath -q -Dmdep.outputFile=/d
   -i examples/sample_data.csv
 ```
 
-**Detailed Documentation**: [CLI Usage Guide](docs/CLI_USAGE_GUIDE.md)
+**Detailed Documentation**: [CLI Usage Guide](docs/user/CLI_USAGE_GUIDE.md)
 
 ### Method 3: Docker Deployment (Production Recommended)
 
@@ -244,14 +244,14 @@ open target/site/jacoco/index.html
 
 ## 📖 Documentation
 
-- **[Project Progress Report](docs/PROJECT_PROGRESS_REPORT.md)** - Current development status
-- **[CLI Usage Guide](docs/CLI_USAGE_GUIDE.md)** - Complete CLI documentation
-- **[API Usage Guide](docs/API_USAGE.md)** - RESTful API documentation
-- **[Deployment Guide](docs/DEPLOYMENT.md)** - Deployment instructions
-- **[CI/CD Guide](docs/CICD_GUIDE.md)** - Continuous integration/deployment
-- **[Testing Guide](docs/TESTING.md)** - Testing practices and guidelines
-- **[Module Structure](docs/MODULE_STRUCTURE.md)** - Module architecture details
-- **[TDD Practice Record](docs/TDD_PRACTICE_RECORD.md)** - TDD development records
+- **[Project Progress Report](docs/pm/PROJECT_PROGRESS_REPORT.md)** - Current development status
+- **[CLI Usage Guide](docs/user/CLI_USAGE_GUIDE.md)** - Complete CLI documentation
+- **[API Usage Guide](docs/user/API_USAGE.md)** - RESTful API documentation
+- **[Deployment Guide](docs/ops/DEPLOYMENT.md)** - Deployment instructions
+- **[CI/CD Guide](docs/ops/CICD_GUIDE.md)** - Continuous integration/deployment
+- **[Testing Guide](docs/dev/TESTING.md)** - Testing practices and guidelines
+- **[Module Structure](docs/dev/MODULE_STRUCTURE.md)** - Module architecture details
+- **[TDD Practice Record](docs/dev/TDD_PRACTICE_RECORD.md)** - TDD development records
 
 ## 🛠️ Technology Stack
 

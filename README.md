@@ -133,7 +133,7 @@ java -cp target/classes:$(mvn dependency:build-classpath -q -Dmdep.outputFile=/d
   -i examples/sample_data.csv
 ```
 
-**详细文档**: [CLI 使用指南](docs/CLI_USAGE_GUIDE.md)
+**详细文档**: [CLI 使用指南](docs/user/CLI_USAGE_GUIDE.md)
 
 #### 方式 2: Docker 部署（生产环境推荐）
 
@@ -336,14 +336,14 @@ mvn test -Dtest=LassoRegressionTest
 
 **文档索引**: [docs/README.md](docs/README.md) - 完整的文档导航和分类
 
-- **[项目进展报告](docs/PROJECT_PROGRESS_REPORT.md)** - 当前开发状态和进度
-- **[CLI使用指南](docs/CLI_USAGE_GUIDE.md)** - 命令行工具完整文档
-- **[API 使用指南](docs/API_USAGE.md)** - 详细的 API 使用说明
-- **[部署指南](docs/DEPLOYMENT.md)** - Docker 部署和配置
-- **[CI/CD指南](docs/CICD_GUIDE.md)** - 持续集成/部署流程
-- **[测试指南](docs/TESTING.md)** - 测试模块说明和覆盖率报告
-- **[模块结构说明](docs/MODULE_STRUCTURE.md)** - 模块架构详情
-- **[TDD实践记录](docs/TDD_PRACTICE_RECORD.md)** - TDD开发实践记录
+- **[项目进展报告](docs/pm/PROJECT_PROGRESS_REPORT.md)** - 当前开发状态和进度
+- **[CLI使用指南](docs/user/CLI_USAGE_GUIDE.md)** - 命令行工具完整文档
+- **[API 使用指南](docs/user/API_USAGE.md)** - 详细的 API 使用说明
+- **[部署指南](docs/ops/DEPLOYMENT.md)** - Docker 部署和配置
+- **[CI/CD指南](docs/ops/CICD_GUIDE.md)** - 持续集成/部署流程
+- **[测试指南](docs/dev/TESTING.md)** - 测试模块说明和覆盖率报告
+- **[模块结构说明](docs/dev/MODULE_STRUCTURE.md)** - 模块架构详情
+- **[TDD实践记录](docs/dev/TDD_PRACTICE_RECORD.md)** - TDD开发实践记录
 - **[贡献指南](CONTRIBUTING.md)** - 如何参与项目贡献
 - **[变更日志](CHANGELOG.md)** - 版本历史记录
 

@@ -12,33 +12,33 @@
 |------|------|------|
 | [README](../README.md) | 项目概览和快速开始 | 🇨🇳 中文 |
 | [README_EN](../README_EN.md) | Project overview and quick start | 🇺🇸 English |
-| [CLI使用指南](CLI_USAGE_GUIDE.md) | 命令行工具完整使用文档 | 🇨🇳 中文 |
-| [API使用指南](API_USAGE.md) | RESTful API接口文档 | 🇨🇳 中文 |
+| [CLI使用指南](user/CLI_USAGE_GUIDE.md) | 命令行工具完整使用文档 | 🇨🇳 中文 |
+| [API使用指南](user/API_USAGE.md) | RESTful API接口文档 | 🇨🇳 中文 |
 
 ### 开发文档
 
 | 文档 | 描述 | 语言 |
 |------|------|------|
-| [模块结构说明](MODULE_STRUCTURE.md) | 模块架构详细说明 | 🇨🇳 中文 |
-| [TDD实践记录](TDD_PRACTICE_RECORD.md) | 测试驱动开发实践记录 | 🇨🇳 中文 |
-| [测试指南](TESTING.md) | 测试实践和指南 | 🇨🇳 中文 |
+| [模块结构说明](dev/MODULE_STRUCTURE.md) | 模块架构详细说明 | 🇨🇳 中文 |
+| [TDD实践记录](dev/TDD_PRACTICE_RECORD.md) | 测试驱动开发实践记录 | 🇨🇳 中文 |
+| [测试指南](dev/TESTING.md) | 测试实践和指南 | 🇨🇳 中文 |
 
 ### 部署与运维
 
 | 文档 | 描述 | 语言 |
 |------|------|------|
-| [部署指南](DEPLOYMENT.md) | 部署说明和配置 | 🇨🇳 中文 |
-| [CI/CD指南](CICD_GUIDE.md) | 持续集成/持续部署 | 🇨🇳 中文 |
-| [MkDocs指南](MKDOCS_GUIDE.md) | 文档站点构建指南 | 🇨🇳 中文 |
+| [部署指南](ops/DEPLOYMENT.md) | 部署说明和配置 | 🇨🇳 中文 |
+| [CI/CD指南](ops/CICD_GUIDE.md) | 持续集成/持续部署 | 🇨🇳 中文 |
+| [MkDocs指南](ops/MKDOCS_GUIDE.md) | 文档站点构建指南 | 🇨🇳 中文 |
 
 ### 项目管理
 
 | 文档 | 描述 | 语言 |
 |------|------|------|
-| [项目进展报告](PROJECT_PROGRESS_REPORT.md) | 当前开发状态和进度 | 🇨🇳 中文 |
-| [阶段一完成总结](PHASE1_COMPLETION_SUMMARY.md) | 阶段一完成情况总结 | 🇨🇳 中文 |
-| [阶段一执行总结](PHASE1_EXECUTION_SUMMARY.md) | 阶段一执行情况总结 | 🇨🇳 中文 |
-| [工作计划](workPlan.md) | 开发工作计划 | 🇨🇳 中文 |
+| [项目进展报告](pm/PROJECT_PROGRESS_REPORT.md) | 当前开发状态和进度 | 🇨🇳 中文 |
+| [阶段一完成总结](pm/PHASE1_COMPLETION_SUMMARY.md) | 阶段一完成情况总结 | 🇨🇳 中文 |
+| [阶段一执行总结](pm/PHASE1_EXECUTION_SUMMARY.md) | 阶段一执行情况总结 | 🇨🇳 中文 |
+| [工作计划](pm/workPlan.md) | 开发工作计划 | 🇨🇳 中文 |
 
 ---
 
