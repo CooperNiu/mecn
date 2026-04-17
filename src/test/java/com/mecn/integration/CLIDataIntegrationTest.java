@@ -183,9 +183,13 @@ class CLIDataIntegrationTest {
             }
             writer.write("\n");
             
-            // 写入数据行
+            // 写入数据行（使用有效的日期）
             for (int i = 0; i < rows; i++) {
-                writer.write(String.format("2020-%02d-01", i + 1));
+                // 计算年月日，确保日期有效
+                int year = 2020 + (i / 12);
+                int month = (i % 12) + 1;
+                int day = 1;
+                writer.write(String.format("%d-%02d-%02d", year, month, day));
                 for (int j = 0; j < columns; j++) {
                     writer.write(String.format(",%.2f", Math.random() * 100));
                 }
