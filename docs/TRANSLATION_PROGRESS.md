@@ -1,29 +1,29 @@
 # Documentation Translation Progress / 文档翻译进度
 
 **Last Updated**: 2026-04-17  
-**Status**: In Progress / 进行中
+**Status**: Core Documentation Complete / 核心文档完成
 
 ---
 
 ## ✅ Completed Translations / 已完成翻译
 
+### User Documentation / 用户文档
+- [x] [API_USAGE_EN.md](user/API_USAGE_EN.md) - RESTful API Usage Guide
+- [x] [CLI_USAGE_GUIDE_EN.md](user/CLI_USAGE_GUIDE_EN.md) - CLI Usage Guide
+
 ### Developer Documentation / 开发文档
-- [x] [TESTING_EN.md](dev/TESTING_EN.md) - Testing Guide / 测试指南
+- [x] [MODULE_STRUCTURE_EN.md](dev/MODULE_STRUCTURE_EN.md) - Module Architecture Details
+- [x] [TESTING_EN.md](dev/TESTING_EN.md) - Testing Guide
 
 ### Operations Documentation / 运维文档
-- [x] [DEPLOYMENT_EN.md](ops/DEPLOYMENT_EN.md) - Docker Deployment Guide / Docker部署指南
-- [x] [CICD_GUIDE_EN.md](ops/CICD_GUIDE_EN.md) - CI/CD Configuration Guide / CI/CD配置指南
+- [x] [DEPLOYMENT_EN.md](ops/DEPLOYMENT_EN.md) - Docker Deployment Guide
+- [x] [CICD_GUIDE_EN.md](ops/CICD_GUIDE_EN.md) - CI/CD Configuration Guide
 
 ---
 
 ## ⏳ Pending Translations / 待翻译文档
 
-### User Documentation / 用户文档 (Priority: High)
-- [ ] API_USAGE_EN.md - RESTful API Usage Guide
-- [ ] CLI_USAGE_GUIDE_EN.md - CLI Usage Guide
-
-### Developer Documentation / 开发文档 (Priority: Medium)
-- [ ] MODULE_STRUCTURE_EN.md - Module Architecture Details
+### Developer Documentation / 开发文档 (Priority: Low)
 - [ ] TDD_PRACTICE_RECORD_EN.md - TDD Practice Records
 
 ### Operations Documentation / 运维文档 (Priority: Low)
@@ -41,11 +41,11 @@
 
 | Category | Total | Completed | Remaining | Progress |
 |----------|-------|-----------|-----------|----------|
-| User Docs | 2 | 0 | 2 | 0% |
-| Dev Docs | 3 | 1 | 2 | 33% |
+| User Docs | 2 | 2 | 0 | **100%** ✅ |
+| Dev Docs | 3 | 2 | 1 | 67% |
 | Ops Docs | 3 | 2 | 1 | 67% |
 | PM Docs | 4 | 0 | 4 | 0% |
-| **Total** | **12** | **3** | **9** | **25%** |
+| **Total** | **12** | **6** | **6** | **50%** 🎉 |
 
 ---
 
