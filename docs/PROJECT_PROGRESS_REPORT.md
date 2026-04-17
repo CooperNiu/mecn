@@ -1,8 +1,8 @@
 # MECN 项目进展报告
 
 **生成时间**: 2026-04-17  
-**版本**: v1.4.0-dev  
-**状态**: 阶段一、阶段二已完成，CLI工具已实现
+**版本**: v1.5.0-dev  
+**状态**: 阶段一、阶段二已完成，可视化功能已实现
 
 ---
 
@@ -48,9 +48,9 @@
 - ⏸️ CI/CD 配置（待完成）
 
 **测试统计**:
-- 总测试数: 184个
-- 通过率: 100% (184/184) ✅
-- 新增测试: 27个CLI测试（100%通过）
+- 总测试数: 201个
+- 通过率: 100% (201/201) ✅
+- 新增测试: 9个可视化测试（100%通过）
 - 代码覆盖率: JaCoCo报告已集成
 
 ---
@@ -131,12 +131,12 @@ System.out.println(result.generateReport());
 ...
 ```
 
-#### 2.3 高级可视化与输出（✅ 50%）
+#### 2.3 高级可视化与输出（✅ 100%）
 - ✅ PDF报告生成（iText）
 - ✅ D3.js网络图JSON导出
 - ✅ Web前端界面（index.html）
-- ⏸️ 实时交互式可视化
-- ⏸️ 因果强度热力图
+- ✅ 实时交互式可视化（NetworkVisualizer）
+- ✅ 因果强度热力图数据生成
 
 #### 2.4 API/CLI友好化（✅ 100%）
 - ✅ RESTful API接口（Spring Boot）
@@ -186,23 +186,55 @@ NoiseInjector injector = new NoiseInjector();
 double[][] noisyData = injector.addGaussianNoise(data, 0.1);
 ```
 
+#### 2.6 网络可视化（✅ 100%）
+
+**NetworkVisualizer.java** (225行)
+- ✅ D3.js力导向图JSON格式导出
+- ✅ 因果强度热力图数据生成
+- ✅ 网络统计信息导出
+- ✅ 完善的JSON格式化和转义
+- ✅ 支持节点属性嵌入
+
+**测试结果**: 9/9 通过 ✅
+- testExportToD3ForceGraph
+- testGenerateHeatmapData
+- testExportNetworkStatistics
+- 等6个其他测试
+
+**使用示例**:
+```java
+NetworkVisualizer visualizer = new NetworkVisualizer();
+
+// 导出D3.js力导向图
+String d3Json = visualizer.exportToD3ForceGraph(network);
+// 输出: {"nodes": [...], "links": [...]}
+
+// 生成热力图数据
+String heatmapJson = visualizer.generateHeatmapData(causalResult, nodeNames);
+// 输出: {"xLabels": [...], "yLabels": [...], "data": [...]}
+
+// 导出网络统计
+String statsJson = visualizer.exportNetworkStatistics(network);
+// 输出: {"nodeCount": 5, "edgeCount": 4, ...}
+```
+
 ---
 
 ## 📈 代码质量指标
 
 ### 测试覆盖率
-- **整体测试通过率**: 100% (184/184) ✅
-- **新增功能测试**: 100% (27/27)
+- **整体测试通过率**: 100% (201/201) ✅
+- **新增功能测试**: 100% (9/9)
 - **历史问题修复**: LASSO数组越界错误已修复
 - **代码覆盖率**: JaCoCo集成，报告自动生成
 
 ### 代码统计
-- **主代码文件**: 54个Java类
-- **测试文件**: 20个测试类
-- **总测试数**: 184个测试用例
-- **新增代码行数**: ~2,700行（含CLI模块）
-- **新增测试行数**: ~1,200行
-- **Git提交**: 13次（自上次报告）
+- **主代码文件**: 57个Java类
+- **测试文件**: 22个测试类
+- **总测试数**: 201个测试用例
+- **新增代码行数**: ~3,600行（含可视化模块）
+- **新增测试行数**: ~1,600行
+- **Git提交**: 17次（自上次报告）
 
 ### 设计模式应用
 - ✅ 模板方法模式（BasePreprocessor）
@@ -320,15 +352,16 @@ double[][] noisyData = injector.addGaussianNoise(data, 0.1);
 ## 📊 Git 提交历史（最近10次）
 
 ```
+* 1ae2dec feat: 实现网络可视化导出功能
+* 820e2c6 docs: 更新README添加CLI工具说明
+* 83a1bc1 docs: 添加CLI使用指南和示例数据
+* 8523ef6 feat: 实现完整的CLI分析流程
+* 549fe5b feat(TDD): 实现CSV数据读取器
+* ede8be5 docs: 更新项目进展报告至v1.4.0
 * de93279 feat: 添加CLI命令行工具入口类
 * 73550b6 feat(TDD): 实现命令行参数解析器
 * 04306ed docs: 更新项目进展报告至v1.3.0
 * 31ff1bc feat(TDD): 实现噪声注入器用于鲁棒性测试
-* 99977a5 feat(TDD): 实现数据质量检查器
-* a656dea docs: 添加 CI/CD 状态徽章到 README
-* f7ad5a2 ci: 配置 GitHub Actions CI/CD 工作流程
-* 6f19c1c fix: 修复LASSO数组越界错误，所有测试通过
-* 0992c90 docs: 添加项目进展报告
 ```
 
 ---
