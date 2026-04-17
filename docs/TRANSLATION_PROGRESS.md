@@ -1,7 +1,7 @@
 # Documentation Translation Progress / 文档翻译进度
 
 **Last Updated**: 2026-04-17  
-**Status**: Core Documentation Complete / 核心文档完成
+**Status**: Technical Documentation Complete / 技术文档完成
 
 ---
 
@@ -13,21 +13,17 @@
 
 ### Developer Documentation / 开发文档
 - [x] [MODULE_STRUCTURE_EN.md](dev/MODULE_STRUCTURE_EN.md) - Module Architecture Details
+- [x] [TDD_PRACTICE_RECORD_EN.md](dev/TDD_PRACTICE_RECORD_EN.md) - TDD Practice Records
 - [x] [TESTING_EN.md](dev/TESTING_EN.md) - Testing Guide
 
 ### Operations Documentation / 运维文档
-- [x] [DEPLOYMENT_EN.md](ops/DEPLOYMENT_EN.md) - Docker Deployment Guide
 - [x] [CICD_GUIDE_EN.md](ops/CICD_GUIDE_EN.md) - CI/CD Configuration Guide
+- [x] [DEPLOYMENT_EN.md](ops/DEPLOYMENT_EN.md) - Docker Deployment Guide
+- [x] [MKDOCS_GUIDE_EN.md](ops/MKDOCS_GUIDE_EN.md) - MkDocs Documentation Site Guide
 
 ---
 
 ## ⏳ Pending Translations / 待翻译文档
-
-### Developer Documentation / 开发文档 (Priority: Low)
-- [ ] TDD_PRACTICE_RECORD_EN.md - TDD Practice Records
-
-### Operations Documentation / 运维文档 (Priority: Low)
-- [ ] MKDOCS_GUIDE_EN.md - MkDocs Documentation Site Guide
 
 ### Project Management Documentation / 项目管理文档 (Priority: Low)
 - [ ] PROJECT_PROGRESS_REPORT_EN.md - Project Progress Report
@@ -42,10 +38,10 @@
 | Category | Total | Completed | Remaining | Progress |
 |----------|-------|-----------|-----------|----------|
 | User Docs | 2 | 2 | 0 | **100%** ✅ |
-| Dev Docs | 3 | 2 | 1 | 67% |
-| Ops Docs | 3 | 2 | 1 | 67% |
+| Dev Docs | 3 | 3 | 0 | **100%** ✅ |
+| Ops Docs | 3 | 3 | 0 | **100%** ✅ |
 | PM Docs | 4 | 0 | 4 | 0% |
-| **Total** | **12** | **6** | **6** | **50%** 🎉 |
+| **Total** | **12** | **8** | **4** | **67%** 🎉 |
 
 ---
 
