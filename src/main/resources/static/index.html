@@ -464,6 +464,7 @@
     </script>
     
     <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script src="https://d3js.org/d3-sankey.v0.12.min.js"></script>
     <script>
         // ---------- i18n ----------
         const I18N = {
@@ -893,7 +894,11 @@
         
         // 显示桑基图
         function showSankey() {
-            switchTab('sankey');
+            // 手动激活桑基图 tab 按钮（不从 event.target 推断）
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.viz-tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-btn')[2].classList.add('active');
+            document.getElementById('sankey-tab').classList.add('active');
             
             const container = document.getElementById('sankey-container');
             const width = container.clientWidth || 800;
