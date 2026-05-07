@@ -3,7 +3,6 @@ package com.mecn.network;
 import com.mecn.model.NetworkGraph;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
-import org.jgrapht.graph.SimpleDirectedWeightedGraph;
 
 import java.util.*;
 
@@ -168,74 +167,89 @@ public class RippleSimulator {
     }
     
     /**
-     * 识别系统重要性节点
+     * 识别系统重要性节点（O(N) 优化，避免为每个节点克隆图）
+     * 
+     * 效率 = density × avgWeight，移除节点 v 后：
+     * - density' = (E - deg(v)) / ((N-1) × (N-2))
+     * - avgWeight' = (sumWeight - sumWeight(v)) / (E - deg(v))
+     * 计算每个节点移除后的效率损失，复杂度 O(N+E) 而非 O(N×(N+E))
      */
     public List<SystemicImportance> identifySystemicallyImportantNodes(NetworkGraph network) {
-        Graph<String, DefaultWeightedEdge> originalGraph = network.getGraph();
-        List<SystemicImportance> importances = new ArrayList<>();
+        Graph<String, DefaultWeightedEdge> graph = network.getGraph();
+        Set<String> vertices = graph.vertexSet();
+        int N = vertices.size();
+        int E = graph.edgeSet().size();
         
-        double originalEfficiency = calculateNetworkEfficiency(originalGraph);
+        if (N <= 1) {
+            List<SystemicImportance> empty = new ArrayList<>();
+            for (String v : vertices) {
+                SystemicImportance imp = new SystemicImportance(v);
+                imp.setImportanceScore(0);
+                imp.setNetworkEfficiencyLoss(0);
+                imp.setAffectedNodesCount(0);
+                empty.add(imp);
+            }
+            return empty;
+        }
         
-        for (String node : originalGraph.vertexSet()) {
-            Graph<String, DefaultWeightedEdge> reducedGraph = 
-                new SimpleDirectedWeightedGraph<>(DefaultWeightedEdge.class);
+        // 预计算全局量
+        int maxEdges = N * (N - 1);
+        double globalDensity = (double) E / maxEdges;
+        double globalSumWeight = 0;
+        for (DefaultWeightedEdge edge : graph.edgeSet()) {
+            globalSumWeight += graph.getEdgeWeight(edge);
+        }
+        double globalAvgWeight = E > 0 ? globalSumWeight / E : 0;
+        double globalEfficiency = globalDensity * globalAvgWeight;
+        
+        // 预计算每个节点的度和关联边权重和
+        Map<String, Integer> degreeMap = new HashMap<>();
+        Map<String, Double> connectedWeightSum = new HashMap<>();
+        for (String v : vertices) {
+            degreeMap.put(v, 0);
+            connectedWeightSum.put(v, 0.0);
+        }
+        for (DefaultWeightedEdge edge : graph.edgeSet()) {
+            String src = graph.getEdgeSource(edge);
+            String tgt = graph.getEdgeTarget(edge);
+            double w = graph.getEdgeWeight(edge);
+            degreeMap.merge(src, 1, Integer::sum);
+            degreeMap.merge(tgt, 1, Integer::sum);
+            connectedWeightSum.merge(src, w, Double::sum);
+            connectedWeightSum.merge(tgt, w, Double::sum);
+        }
+        
+        // O(N) 计算每个节点的重要性
+        List<SystemicImportance> importances = new ArrayList<>(N);
+        for (String v : vertices) {
+            int degV = degreeMap.get(v);
+            int reducedEdges = E - degV;
             
-            for (String n : originalGraph.vertexSet()) {
-                if (!n.equals(node)) {
-                    reducedGraph.addVertex(n);
-                }
+            double reducedEfficiency;
+            if (reducedEdges <= 0 || (N - 1) <= 1) {
+                reducedEfficiency = 0;
+            } else {
+                int reducedMaxEdges = (N - 1) * (N - 2);
+                double reducedDensity = (double) reducedEdges / reducedMaxEdges;
+                double reducedSumWeight = globalSumWeight - connectedWeightSum.get(v);
+                double reducedAvgWeight = reducedSumWeight / reducedEdges;
+                reducedEfficiency = reducedDensity * reducedAvgWeight;
             }
             
-            for (DefaultWeightedEdge edge : originalGraph.edgeSet()) {
-                String source = originalGraph.getEdgeSource(edge);
-                String target = originalGraph.getEdgeTarget(edge);
-                
-                if (!source.equals(node) && !target.equals(node)) {
-                    reducedGraph.addEdge(source, target);
-                    DefaultWeightedEdge newEdge = reducedGraph.getEdge(source, target);
-                    if (newEdge != null) {
-                        reducedGraph.setEdgeWeight(newEdge, originalGraph.getEdgeWeight(edge));
-                    }
-                }
-            }
-            
-            double reducedEfficiency = calculateNetworkEfficiency(reducedGraph);
-            double efficiencyLoss = originalEfficiency > 0 
-                ? (originalEfficiency - reducedEfficiency) / originalEfficiency 
+            double efficiencyLoss = globalEfficiency > 0
+                ? (globalEfficiency - reducedEfficiency) / globalEfficiency
                 : 0.0;
             
-            SystemicImportance importance = new SystemicImportance(node);
+            SystemicImportance importance = new SystemicImportance(v);
             importance.setImportanceScore(efficiencyLoss);
             importance.setNetworkEfficiencyLoss(efficiencyLoss);
-            importance.setAffectedNodesCount(reducedGraph.vertexSet().size());
+            importance.setAffectedNodesCount(N - 1);
             
             importances.add(importance);
         }
         
         importances.sort((a, b) -> Double.compare(b.getImportanceScore(), a.getImportanceScore()));
         return importances;
-    }
-    
-    /**
-     * 计算网络效率（简化版本）
-     */
-    private double calculateNetworkEfficiency(Graph<String, DefaultWeightedEdge> graph) {
-        int numNodes = graph.vertexSet().size();
-        if (numNodes == 0) return 0.0;
-        
-        int numEdges = graph.edgeSet().size();
-        int maxEdges = numNodes * (numNodes - 1);
-        
-        double avgWeight = 0.0;
-        if (!graph.edgeSet().isEmpty()) {
-            for (DefaultWeightedEdge edge : graph.edgeSet()) {
-                avgWeight += graph.getEdgeWeight(edge);
-            }
-            avgWeight /= graph.edgeSet().size();
-        }
-        
-        double density = maxEdges > 0 ? (double) numEdges / maxEdges : 0.0;
-        return density * avgWeight;
     }
     
     public double getDecayFactor() {

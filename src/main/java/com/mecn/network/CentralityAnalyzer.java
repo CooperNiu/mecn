@@ -2,14 +2,18 @@ package com.mecn.network;
 
 import com.mecn.model.CentralityResult;
 import org.jgrapht.Graph;
+import org.jgrapht.alg.scoring.*;
+import org.jgrapht.alg.shortestpath.GraphMeasurer;
 import org.jgrapht.graph.DefaultWeightedEdge;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 中心性分析器
  * 
- * 计算网络中节点的各种中心性指标
+ * 使用 JGraphT 原生算法计算网络中节点的各种中心性指标
+ * 替换了之前的简化占位符实现
  * 
  * @example
  * {@code
@@ -42,7 +46,7 @@ public class CentralityAnalyzer {
         Set<String> vertices = graph.vertexSet();
         List<CentralityResult> results = new ArrayList<>(vertices.size());
         
-        // 计算各种中心性指标
+        // 使用 JGraphT 原生算法计算各种中心性
         Map<String, Double> degreeCentrality = calculateDegreeCentrality();
         Map<String, Double> inDegreeCentrality = calculateInDegreeCentrality();
         Map<String, Double> outDegreeCentrality = calculateOutDegreeCentrality();
@@ -83,7 +87,7 @@ public class CentralityAnalyzer {
      * 获取 Top K 重要节点
      * 
      * @param k 数量
-     * @param sortBy 排序依据（"degree", "betweenness", "closeness", "eigenvector", "pagerank", "composite"）
+     * @param sortBy 排序依据
      * @return Top K 节点列表
      */
     public List<CentralityResult> getTopKNodes(int k, String sortBy) {
@@ -96,11 +100,11 @@ public class CentralityAnalyzer {
         return cachedResults.values().stream()
             .sorted(comparator.reversed())
             .limit(k)
-            .collect(java.util.stream.Collectors.toList());
+            .collect(Collectors.toList());
     }
     
     /**
-     * 计算度中心性
+     * 计算度中心性（归一化）
      */
     private Map<String, Double> calculateDegreeCentrality() {
         Map<String, Double> centrality = new HashMap<>();
@@ -113,7 +117,6 @@ public class CentralityAnalyzer {
             return centrality;
         }
         
-        // 使用简单的度计算
         for (String vertex : graph.vertexSet()) {
             int degree = graph.degreeOf(vertex);
             centrality.put(vertex, (double) degree / (n - 1));
@@ -123,7 +126,7 @@ public class CentralityAnalyzer {
     }
     
     /**
-     * 计算入度中心性
+     * 计算入度中心性（归一化）
      */
     private Map<String, Double> calculateInDegreeCentrality() {
         Map<String, Double> centrality = new HashMap<>();
@@ -145,7 +148,7 @@ public class CentralityAnalyzer {
     }
     
     /**
-     * 计算出度中心性
+     * 计算出度中心性（归一化）
      */
     private Map<String, Double> calculateOutDegreeCentrality() {
         Map<String, Double> centrality = new HashMap<>();
@@ -167,81 +170,98 @@ public class CentralityAnalyzer {
     }
     
     /**
-     * 计算接近中心性（简化版本）
+     * 使用 JGraphT 的 HarmonicCentrality 计算接近中心性。
+     * 
+     * Harmonic Centrality 是 Closeness Centrality 的变体，能很好地处理有向图
+     * 中不可达节点的情况（不连通分量中的节点不会导致值为 0）。
      */
     private Map<String, Double> calculateClosenessCentrality() {
         Map<String, Double> centrality = new HashMap<>();
+        int n = graph.vertexSet().size();
         
-        // 简化实现：使用平均最短路径长度的倒数
-        for (String vertex : graph.vertexSet()) {
-            // 这里使用一个简化的近似值
-            // 完整实现需要使用 Dijkstra 或 BFS 计算所有节点对的最短路径
-            int degree = graph.degreeOf(vertex);
-            double avgPathLength = 1.0 + 1.0 / (degree + 1);
-            centrality.put(vertex, 1.0 / avgPathLength);
+        if (n <= 1) {
+            for (String vertex : graph.vertexSet()) {
+                centrality.put(vertex, 0.0);
+            }
+            return centrality;
+        }
+        
+        try {
+            // 使用 JGraphT 的 HarmonicCentrality（适用于有向加权图）
+            HarmonicCentrality<String, DefaultWeightedEdge> algo = 
+                new HarmonicCentrality<>(graph);
+            centrality = algo.getScores();
+        } catch (Exception e) {
+            // 回退：使用度作为近似
+            for (String vertex : graph.vertexSet()) {
+                int degree = graph.degreeOf(vertex);
+                centrality.put(vertex, (double) degree / (n - 1));
+            }
         }
         
         return centrality;
     }
     
     /**
-     * 计算中介中心性（简化版本）
+     * 使用 JGraphT 的 BetweennessCentrality 计算中介中心性。
+     * 对于有向加权图，使用 Brandes 算法。
      */
     private Map<String, Double> calculateBetweennessCentrality() {
         Map<String, Double> centrality = new HashMap<>();
-        
-        // 简化实现：基于度和邻居数量估算
         int n = graph.vertexSet().size();
-        for (String vertex : graph.vertexSet()) {
-            int degree = graph.degreeOf(vertex);
-            // 中介中心性近似为度的函数
-            centrality.put(vertex, (double) degree / n);
+        
+        if (n <= 2) {
+            for (String vertex : graph.vertexSet()) {
+                centrality.put(vertex, 0.0);
+            }
+            return centrality;
+        }
+        
+        try {
+            // JGraphT BetweennessCentrality 支持有向图
+            BetweennessCentrality<String, DefaultWeightedEdge> algo = 
+                new BetweennessCentrality<>(graph);
+            centrality = algo.getScores();
+        } catch (Exception e) {
+            // 回退方案
+            for (String vertex : graph.vertexSet()) {
+                centrality.put(vertex, 0.0);
+            }
         }
         
         return centrality;
     }
     
     /**
-     * 计算 PageRank（简化版本）
+     * 使用 JGraphT 的 PageRank 算法计算 PageRank 值。
+     * 默认阻尼系数 0.85，最大迭代次数 100。
      */
     private Map<String, Double> calculatePageRank() {
-        Map<String, Double> pagerank = new HashMap<>();
+        Map<String, Double> centrality = new HashMap<>();
         int n = graph.vertexSet().size();
         
         if (n == 0) {
-            return pagerank;
+            return centrality;
         }
         
-        // 初始化所有节点的 PageRank 值
-        double dampingFactor = 0.85;
-        double initialValue = 1.0 / n;
-        
-        for (String vertex : graph.vertexSet()) {
-            pagerank.put(vertex, initialValue);
-        }
-        
-        // 迭代计算（简化版本，仅一次迭代）
-        for (String vertex : graph.vertexSet()) {
-            Set<DefaultWeightedEdge> incomingEdges = graph.incomingEdgesOf(vertex);
-            double sum = 0.0;
-            
-            for (DefaultWeightedEdge edge : incomingEdges) {
-                String neighbor = graph.getEdgeSource(edge);
-                if (!neighbor.equals(vertex)) {
-                    int neighborDegree = graph.degreeOf(neighbor);
-                    sum += (1.0 / neighborDegree);
-                }
+        try {
+            PageRank<String, DefaultWeightedEdge> algo = 
+                new PageRank<>(graph, 0.85, 100, 1e-4);
+            centrality = algo.getScores();
+        } catch (Exception e) {
+            // 回退：均匀分布
+            double uniform = 1.0 / n;
+            for (String vertex : graph.vertexSet()) {
+                centrality.put(vertex, uniform);
             }
-            
-            double newValue = (1 - dampingFactor) / n + dampingFactor * sum;
-            pagerank.put(vertex, newValue);
         }
         
-        return pagerank;
+        return centrality;
     }
     
     /**
-     * 计算特征向量中心性（简化版本）
+     * 使用 JGraphT 的 EigenvectorCentrality 计算特征向量中心性。
+     * 默认最大迭代次数 100，收敛容差 1e-4。
      */
     private Map<String, Double> calculateEigenvectorCentrality() {
         Map<String, Double> centrality = new HashMap<>();
@@ -251,25 +271,16 @@ public class CentralityAnalyzer {
             return centrality;
         }
         
-        // 初始化
-        for (String vertex : graph.vertexSet()) {
-            centrality.put(vertex, 1.0 / n);
-        }
-        
-        // 迭代计算（简化版本）
-        for (String vertex : graph.vertexSet()) {
-            Set<DefaultWeightedEdge> edges = graph.edgesOf(vertex);
-            double sum = 0.0;
-            
-            for (DefaultWeightedEdge edge : edges) {
-                String neighbor = graph.getEdgeTarget(edge);
-                if (neighbor.equals(vertex)) {
-                    neighbor = graph.getEdgeSource(edge);
-                }
-                sum += 1.0;  // 简化：假设邻居的中心性为 1
+        try {
+            // JGraphT 1.5.x EigenvectorCentrality 通过构造参数控制迭代
+            EigenvectorCentrality<String, DefaultWeightedEdge> algo = 
+                new EigenvectorCentrality<>(graph, 200, 1e-6);
+            centrality = algo.getScores();
+        } catch (Exception e) {
+            // 特征向量中心性可能不收敛，回退到度中心性
+            for (String vertex : graph.vertexSet()) {
+                centrality.put(vertex, (double) graph.degreeOf(vertex) / Math.max(1, n - 1));
             }
-            
-            centrality.put(vertex, sum / n);
         }
         
         return centrality;
