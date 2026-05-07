@@ -78,7 +78,7 @@ public class CausalDiscoveryExample {
             .data(data)
             .method(new LassoRegression()
                 .withLambda(0.1)
-                .withThreshold(0.05))
+                .withMinStrength(0.05))
             .significanceLevel(0.05)
             .discover();
         

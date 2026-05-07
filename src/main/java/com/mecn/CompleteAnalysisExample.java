@@ -156,7 +156,7 @@ public class CompleteAnalysisExample {
         HyperparameterResult result = lasso.autoTuneLambda(data);
         
         // 自动应用最优参数
-        lasso.withThreshold(0.1);
+        lasso.withMinStrength(0.1);
         
         return result;
     }
