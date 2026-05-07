@@ -5,9 +5,13 @@ import com.mecn.causal.CausalResult;
 import com.mecn.data.generator.EnhancedDataGenerator;
 import com.mecn.model.EconomicIndicator;
 import com.mecn.model.NetworkGraph;
+import com.mecn.model.CentralityResult;
+import com.mecn.network.CentralityAnalyzer;
 import com.mecn.network.RippleResult;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultWeightedEdge;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,8 +23,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @RestController
 @RequestMapping("/api/network")
-@CrossOrigin(origins = "*")
+@CrossOrigin(origins = "${mecn.cors.origins:http://localhost:8080}")
 public class NetworkController {
+
+    private static final Logger log = LoggerFactory.getLogger(NetworkController.class);
 
     // 轻量级结果缓存（避免每次请求都重跑全链路）
     private final Map<String, CachedResult> networkCache = new ConcurrentHashMap<>();
@@ -150,24 +156,30 @@ public class NetworkController {
             var cached = getOrBuildNetwork(100, 0.08, 0.05);
             NetworkGraph network = cached.network();
 
+            // 使用真实 CentralityAnalyzer 计算，替换之前的 Math.random() 占位符
+            CentralityAnalyzer analyzer = new CentralityAnalyzer(network.getGraph());
+            List<CentralityResult> centralityResults = analyzer.analyze();
+
             List<Map<String, Object>> nodes = new ArrayList<>();
-            Graph<String, DefaultWeightedEdge> graph = network.getGraph();
             int rank = 1;
-            
-            for (String nodeId : graph.vertexSet()) {
+            for (CentralityResult result : centralityResults) {
                 Map<String, Object> node = new HashMap<>();
-                node.put("id", nodeId);
-                node.put("name", nodeId);
-                
-                double degreeCentrality = (double) (graph.inDegreeOf(nodeId) + graph.outDegreeOf(nodeId)) / Math.max(1, graph.vertexSet().size() - 1);
-                node.put("degreeCentrality", degreeCentrality);
-                node.put("betweennessCentrality", Math.random());
-                node.put("closenessCentrality", Math.random());
-                node.put("eigenvectorCentrality", Math.random());
-                node.put("compositeScore", degreeCentrality);
+                node.put("id", result.getNodeId());
+                node.put("name", result.getNodeId());
+                node.put("degreeCentrality", result.getDegreeCentrality());
+                node.put("betweennessCentrality", result.getBetweennessCentrality());
+                node.put("closenessCentrality", result.getClosenessCentrality());
+                node.put("eigenvectorCentrality", result.getEigenvectorCentrality());
+                node.put("pageRank", result.getPageRank());
+                node.put("compositeScore", result.getCompositeScore());
                 node.put("rank", rank++);
                 nodes.add(node);
             }
+
+            // 按综合得分排序
+            nodes.sort((a, b) -> Double.compare(
+                ((Number) b.get("compositeScore")).doubleValue(),
+                ((Number) a.get("compositeScore")).doubleValue()));
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -176,6 +188,7 @@ public class NetworkController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
+            log.error("Systemic importance analysis failed", e);
             Map<String, Object> error = new HashMap<>();
             error.put("success", false);
             error.put("error", e.getMessage());
@@ -189,12 +202,16 @@ public class NetworkController {
         Map<String, String> categories = getCategoryMapping();
         Graph<String, DefaultWeightedEdge> graph = network.getGraph();
         
+        // 节点大小基于度中心性（真实值），替换 Math.random() 占位符
+        int maxDegree = graph.vertexSet().stream()
+            .mapToInt(v -> graph.degreeOf(v)).max().orElse(1);
         for (String nodeId : graph.vertexSet()) {
+            int degree = graph.degreeOf(nodeId);
             Map<String, Object> node = new HashMap<>();
             node.put("id", nodeId);
             node.put("name", nodeId);
             node.put("category", categories.getOrDefault(nodeId, "other"));
-            node.put("size", 12 + Math.random() * 8);
+            node.put("size", 8 + 16.0 * degree / Math.max(1, maxDegree));
             nodes.add(node);
         }
 

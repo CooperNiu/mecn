@@ -25,6 +25,20 @@ public class CausalEngineImpl implements CausalEngine {
         return t;
     });
 
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            SHARED_EXECUTOR.shutdown();
+            try {
+                if (!SHARED_EXECUTOR.awaitTermination(3, java.util.concurrent.TimeUnit.SECONDS)) {
+                    SHARED_EXECUTOR.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                SHARED_EXECUTOR.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
+        }));
+    }
+
     private final List<CausalMethod> methods;
     private final EnsembleFusionStrategy fusionStrategy;
     private final boolean parallel;
