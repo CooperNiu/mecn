@@ -1,8 +1,6 @@
 package com.mecn.integration;
 
-import com.mecn.causal.CausalConfig;
-import com.mecn.causal.CausalEngineImpl;
-import com.mecn.causal.CausalResult;
+import com.mecn.causal.*;
 import com.mecn.data.generator.EnhancedDataGenerator;
 import com.mecn.model.NetworkGraph;
 import com.mecn.network.NetworkBuilder;
@@ -26,36 +24,29 @@ class MECNEndToEndTest {
         // Step 1: 生成经济数据
         EnhancedDataGenerator generator = new EnhancedDataGenerator(42);
         double[][] economicData = generator.generateData();
-        
         assertThat(economicData).hasDimensions(150, 40);
 
-        // Step 2: 因果发现（使用简化的测试方法）
-        // 注意：由于 LassoRegression 依赖 Smile API，这里使用简化测试
+        // Step 2: 使用真实 LASSO 执行因果发现
         CausalEngineImpl causalEngine = new CausalEngineImpl(false);
-        // 暂时不注册实际方法，避免 Smile 依赖问题
-        
+        causalEngine.registerMethod(new LassoRegression().withLambda(0.1).withMinStrength(0.05));
         CausalConfig config = new CausalConfig();
         config.setParallel(false);
-        
-        // 为了测试流程，创建一个简化的因果结果
-        CausalResult causalResult = createSimpleCausalResult(5);
+        CausalResult causalResult = causalEngine.discover(economicData, config);
+        assertThat(causalResult).isNotNull();
+        assertThat(causalResult.getAdjacencyMatrix()).isNotNull();
 
         // Step 3: 构建网络
-        NetworkBuilder networkBuilder = new NetworkBuilder(0.05);
-        java.util.List<String> nodeNames = java.util.Arrays.asList(
-            "CMD_0", "CMD_1", "MACRO_0", "FIN_0", "EMPL_0"
-        );
-        
-        NetworkGraph network = networkBuilder.build(causalResult, nodeNames);
-        
-        assertThat(network.getNodes()).hasSize(5);
+        java.util.List<String> nodeNames = generator.getSupportedIndicators().stream()
+            .map(com.mecn.model.EconomicIndicator::getCode)
+            .collect(java.util.stream.Collectors.toList());
+        NetworkGraph network = new NetworkBuilder(0.08).build(causalResult, nodeNames);
+        assertThat(network.getNodes()).hasSize(40);
 
-        // Step 4: 涟漪效应模拟
+        // Step 4: 涟漪模拟
         RippleSimulator simulator = new RippleSimulator(0.9, 20);
-        RippleResult rippleResult = simulator.simulate(network, "CMD_0", 1.0, 20);
-        
-        assertThat(rippleResult.getShockNode()).isEqualTo("CMD_0");
-        assertThat(rippleResult.getTimeSteps()).isEqualTo(20);
+        String shockNode = network.getNodes().iterator().next();
+        RippleResult rippleResult = simulator.simulate(network, shockNode, 1.0, 20);
+        assertThat(rippleResult.getShockNode()).isEqualTo(shockNode);
 
         // Step 5: 验证结果完整性
         assertThat(rippleResult.getNodeResponses()).isNotEmpty();
