@@ -75,125 +75,101 @@ public class NetworkController {
 
     @PostMapping("/build")
     public ResponseEntity<Map<String, Object>> buildNetwork(@RequestBody Map<String, Object> request) {
-        try {
-            @SuppressWarnings("unused")
-            String dataSource = (String) request.getOrDefault("dataSource", "simulated");
-            int numPeriods = ((Number) request.getOrDefault("numPeriods", 150)).intValue();
-            double edgeThreshold = ((Number) request.getOrDefault("edgeThreshold", 0.08)).doubleValue();
-            double significanceLevel = ((Number) request.getOrDefault("significanceLevel", 0.05)).doubleValue();
+        @SuppressWarnings("unused")
+        String dataSource = (String) request.getOrDefault("dataSource", "simulated");
+        int numPeriods = ((Number) request.getOrDefault("numPeriods", 150)).intValue();
+        double edgeThreshold = ((Number) request.getOrDefault("edgeThreshold", 0.08)).doubleValue();
+        double significanceLevel = ((Number) request.getOrDefault("significanceLevel", 0.05)).doubleValue();
 
-            var cached = getOrBuildNetwork(numPeriods, edgeThreshold, significanceLevel);
-            NetworkGraph network = cached.network();
+        var cached = getOrBuildNetwork(numPeriods, edgeThreshold, significanceLevel);
+        NetworkGraph network = cached.network();
 
-            Map<String, Object> vizData = convertToVizData(network);
+        Map<String, Object> vizData = convertToVizData(network);
 
-            Map<String, Object> stats = new HashMap<>();
-            int nodeCount = (int) vizData.get("nodes");
-            int edgeCount = ((List<?>) vizData.get("links")).size();
-            stats.put("nodeCount", nodeCount);
-            stats.put("edgeCount", edgeCount);
-            stats.put("density", calculateDensity(nodeCount, edgeCount));
-            stats.put("avgDegree", calculateAvgDegree(nodeCount, edgeCount));
+        Map<String, Object> stats = new HashMap<>();
+        int nodeCount = (int) vizData.get("nodes");
+        int edgeCount = ((List<?>) vizData.get("links")).size();
+        stats.put("nodeCount", nodeCount);
+        stats.put("edgeCount", edgeCount);
+        stats.put("density", calculateDensity(nodeCount, edgeCount));
+        stats.put("avgDegree", calculateAvgDegree(nodeCount, edgeCount));
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("data", vizData);
-            response.put("statistics", stats);
-            response.put("numNodes", nodeCount);
-            response.put("numEdges", edgeCount);
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("data", vizData);
+        response.put("statistics", stats);
+        response.put("numNodes", nodeCount);
+        response.put("numEdges", edgeCount);
 
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("success", false);
-            error.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
-        }
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/ripple")
     public ResponseEntity<Map<String, Object>> simulateRipple(@RequestBody Map<String, Object> request) {
-        try {
-            String shockNode = (String) request.get("shockNode");
-            double magnitude = ((Number) request.getOrDefault("magnitude", -0.1)).doubleValue();
-            int timeSteps = ((Number) request.getOrDefault("timeSteps", 20)).intValue();
-            double decayFactor = ((Number) request.getOrDefault("decayFactor", 0.9)).doubleValue();
+        String shockNode = (String) request.get("shockNode");
+        double magnitude = ((Number) request.getOrDefault("magnitude", -0.1)).doubleValue();
+        int timeSteps = ((Number) request.getOrDefault("timeSteps", 20)).intValue();
+        @SuppressWarnings("unused")
+        double decayFactor = ((Number) request.getOrDefault("decayFactor", 0.9)).doubleValue();
 
-            if (shockNode == null || shockNode.isEmpty()) {
-                throw new IllegalArgumentException("shockNode 不能为空");
-            }
-
-            var cached = getOrBuildNetwork(100, 0.08, 0.05);
-            NetworkGraph network = cached.network();
-
-            if (!network.getNodes().contains(shockNode)) {
-                throw new IllegalArgumentException("冲击节点 " + shockNode + " 不在网络中。可用节点: " + network.getNodes());
-            }
-
-            RippleResult result = MECNTools.simulateShock(network, shockNode, magnitude);
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("affectedNodes", getAffectedNodes(result));
-            response.put("totalImpact", calculateTotalImpact(result));
-            response.put("peakTime", getPeakTime(result));
-            response.put("timeSeries", convertTimeSeries(result));
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            Map<String, Object> error = new HashMap<>();
-            error.put("success", false);
-            error.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
+        if (shockNode == null || shockNode.isEmpty()) {
+            throw new IllegalArgumentException("shockNode is required");
         }
+
+        var cached = getOrBuildNetwork(100, 0.08, 0.05);
+        NetworkGraph network = cached.network();
+
+        if (!network.getNodes().contains(shockNode)) {
+            throw new com.mecn.exception.NetworkException(
+                com.mecn.exception.MECNException.ErrorCode.RIPPLE_SIMULATION_ERROR,
+                "Shock node '" + shockNode + "' not found in network");
+        }
+
+        RippleResult result = MECNTools.simulateShock(network, shockNode, magnitude);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("affectedNodes", getAffectedNodes(result));
+        response.put("totalImpact", calculateTotalImpact(result));
+        response.put("peakTime", getPeakTime(result));
+        response.put("timeSeries", convertTimeSeries(result));
+
+        return ResponseEntity.ok(response);
     }
 
     @GetMapping("/systemic-importance")
     public ResponseEntity<Map<String, Object>> getSystemicImportance() {
-        try {
-            var cached = getOrBuildNetwork(100, 0.08, 0.05);
-            NetworkGraph network = cached.network();
+        var cached = getOrBuildNetwork(100, 0.08, 0.05);
+        NetworkGraph network = cached.network();
 
-            // 使用真实 CentralityAnalyzer 计算，替换之前的 Math.random() 占位符
-            CentralityAnalyzer analyzer = new CentralityAnalyzer(network.getGraph());
-            List<CentralityResult> centralityResults = analyzer.analyze();
+        CentralityAnalyzer analyzer = new CentralityAnalyzer(network.getGraph());
+        List<CentralityResult> centralityResults = analyzer.analyze();
 
-            List<Map<String, Object>> nodes = new ArrayList<>();
-            int rank = 1;
-            for (CentralityResult result : centralityResults) {
-                Map<String, Object> node = new HashMap<>();
-                node.put("id", result.getNodeId());
-                node.put("name", result.getNodeId());
-                node.put("degreeCentrality", result.getDegreeCentrality());
-                node.put("betweennessCentrality", result.getBetweennessCentrality());
-                node.put("closenessCentrality", result.getClosenessCentrality());
-                node.put("eigenvectorCentrality", result.getEigenvectorCentrality());
-                node.put("pageRank", result.getPageRank());
-                node.put("compositeScore", result.getCompositeScore());
-                node.put("rank", rank++);
-                nodes.add(node);
-            }
-
-            // 按综合得分排序
-            nodes.sort((a, b) -> Double.compare(
-                ((Number) b.get("compositeScore")).doubleValue(),
-                ((Number) a.get("compositeScore")).doubleValue()));
-
-            Map<String, Object> response = new HashMap<>();
-            response.put("success", true);
-            response.put("nodes", nodes);
-
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            log.error("Systemic importance analysis failed", e);
-            Map<String, Object> error = new HashMap<>();
-            error.put("success", false);
-            error.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(error);
+        List<Map<String, Object>> nodes = new ArrayList<>();
+        int rank = 1;
+        for (CentralityResult result : centralityResults) {
+            Map<String, Object> node = new HashMap<>();
+            node.put("id", result.getNodeId());
+            node.put("name", result.getNodeId());
+            node.put("degreeCentrality", result.getDegreeCentrality());
+            node.put("betweennessCentrality", result.getBetweennessCentrality());
+            node.put("closenessCentrality", result.getClosenessCentrality());
+            node.put("eigenvectorCentrality", result.getEigenvectorCentrality());
+            node.put("pageRank", result.getPageRank());
+            node.put("compositeScore", result.getCompositeScore());
+            node.put("rank", rank++);
+            nodes.add(node);
         }
+
+        nodes.sort((a, b) -> Double.compare(
+            ((Number) b.get("compositeScore")).doubleValue(),
+            ((Number) a.get("compositeScore")).doubleValue()));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("success", true);
+        response.put("nodes", nodes);
+
+        return ResponseEntity.ok(response);
     }
 
     private Map<String, Object> convertToVizData(NetworkGraph network) {
