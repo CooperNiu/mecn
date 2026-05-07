@@ -17,6 +17,16 @@ spring:
     mode: HTML
     cache: false
 
+  # i18n
+  messages:
+    basename: i18n/messages
+    encoding: UTF-8
+    fallback-to-system-locale: false
+
+  web:
+    locale: zh_CN
+    locale-resolver: fixed
+
 # Server 配置
 server:
   port: 8080

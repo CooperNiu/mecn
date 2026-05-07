@@ -3,6 +3,9 @@ package com.mecn.data.provider;
 import com.mecn.model.EconomicIndicator;
 import com.mecn.model.TimeSeriesData;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.json.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -39,9 +42,12 @@ import java.util.stream.Collectors;
  * }
  */
 public class FredDataProvider implements DataProvider {
-    
+
+    private static final Logger log = LoggerFactory.getLogger(FredDataProvider.class);
     private static final String BASE_URL = "https://api.stlouisfed.org/fred/series/observations";
     private static final String FILE_TYPE = "json";
+    private static final int CONNECT_TIMEOUT_MS = 10_000;
+    private static final int READ_TIMEOUT_MS = 30_000;
     
     private final String apiKey;
     private final List<EconomicIndicator> supportedIndicators;
@@ -69,7 +75,7 @@ public class FredDataProvider implements DataProvider {
                     results.add(data);
                 }
             } catch (Exception e) {
-                System.err.println("Failed to fetch data for " + indicator.getCode() + ": " + e.getMessage());
+                log.warn("Failed to fetch data for {}: {}", indicator.getCode(), e.getMessage());
             }
         }
         
@@ -95,6 +101,8 @@ public class FredDataProvider implements DataProvider {
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
+        connection.setConnectTimeout(CONNECT_TIMEOUT_MS);
+        connection.setReadTimeout(READ_TIMEOUT_MS);
         connection.connect();
         
         int responseCode = connection.getResponseCode();
@@ -201,12 +209,10 @@ public class FredDataProvider implements DataProvider {
             return new TimeSeriesData(seriesId, datesArray, valuesArray);
             
         } catch (JsonException e) {
-            System.err.println("JSON parsing error for series " + seriesId + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("JSON parsing error for series {}: {}", seriesId, e.getMessage(), e);
             return new TimeSeriesData(seriesId, new LocalDate[0], new double[0]);
         } catch (Exception e) {
-            System.err.println("Unexpected error for series " + seriesId + ": " + e.getMessage());
-            e.printStackTrace();
+            log.error("Unexpected error for series {}: {}", seriesId, e.getMessage(), e);
             return new TimeSeriesData(seriesId, new LocalDate[0], new double[0]);
         }
     }

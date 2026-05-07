@@ -3,6 +3,9 @@ package com.mecn.data.provider;
 import com.mecn.model.EconomicIndicator;
 import com.mecn.model.TimeSeriesData;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.json.*;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -38,9 +41,12 @@ import java.util.List;
  * }
  */
 public class WorldBankDataProvider implements DataProvider {
-    
+
+    private static final Logger log = LoggerFactory.getLogger(WorldBankDataProvider.class);
     private static final String BASE_URL = "https://api.worldbank.org/v2/country";
     private static final String FORMAT = "json";
+    private static final int CONNECT_TIMEOUT_MS = 10_000;
+    private static final int READ_TIMEOUT_MS = 30_000;
     
     private final List<EconomicIndicator> supportedIndicators;
     
@@ -71,7 +77,7 @@ public class WorldBankDataProvider implements DataProvider {
                     results.add(data);
                 }
             } catch (Exception e) {
-                System.err.println("Failed to fetch data for " + indicator.getCode() + ": " + e.getMessage());
+                log.warn("Failed to fetch data for {}: {}", indicator.getCode(), e.getMessage());
             }
         }
         
@@ -106,6 +112,8 @@ public class WorldBankDataProvider implements DataProvider {
         URL url = new URL(urlString);
         HttpURLConnection connection = (HttpURLConnection) url.openConnection();
         connection.setRequestMethod("GET");
+        connection.setConnectTimeout(CONNECT_TIMEOUT_MS);
+        connection.setReadTimeout(READ_TIMEOUT_MS);
         connection.connect();
         
         int responseCode = connection.getResponseCode();
@@ -189,8 +197,7 @@ public class WorldBankDataProvider implements DataProvider {
                             values.add(value);
                         }
                     } catch (Exception e) {
-                        // 跳过无法解析的数据
-                        System.err.println("Failed to parse data item: " + dateStr + " = " + valueObj);
+                        log.warn("Failed to parse data item: {} = {}", dateStr, valueObj);
                     }
                 }
             }
@@ -202,7 +209,7 @@ public class WorldBankDataProvider implements DataProvider {
             return new TimeSeriesData(indicatorId, datesArray, valuesArray);
             
         } catch (JsonException e) {
-            System.err.println("JSON parsing error for indicator " + indicatorId + ": " + e.getMessage());
+            log.error("JSON parsing error for indicator {}: {}", indicatorId, e.getMessage(), e);
             return new TimeSeriesData(indicatorId, new LocalDate[0], new double[0]);
         }
     }
