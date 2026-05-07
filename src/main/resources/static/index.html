@@ -451,6 +451,17 @@
     </main>
     
     <div id="tooltip" class="tooltip" style="display: none;"></div>
+    <div id="notify" style="display:none;position:fixed;bottom:20px;right:20px;background:#333;color:#fff;padding:12px 20px;border-radius:8px;font-size:14px;z-index:9999;max-width:360px;box-shadow:0 4px 12px rgba(0,0,0,0.3);transition:opacity .3s;"></div>
+    <script>
+        function notify(msg, isError) {
+            const el = document.getElementById('notify');
+            el.textContent = msg;
+            el.style.background = isError ? '#e74c3c' : '#333';
+            el.style.display = 'block';
+            el.style.opacity = 1;
+            setTimeout(() => { el.style.opacity = 0; setTimeout(() => el.style.display='none', 300); }, 3000);
+        }
+    </script>
     
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
@@ -564,11 +575,11 @@
         });
         
         // Tab 切换
-        function switchTab(tabName) {
+        function switchTab(tabName, evt) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             document.querySelectorAll('.viz-tab').forEach(tab => tab.classList.remove('active'));
             
-            event.target.classList.add('active');
+            (evt || event).target.classList.add('active');
             document.getElementById(tabName + '-tab').classList.add('active');
             
             if (tabName === 'network' && currentNetworkData) {
@@ -609,6 +620,7 @@
                     
                     // 渲染网络
                     renderNetwork(result.data);
+                    notify(_t('tabNetwork') + ': ' + result.numNodes + ' ' + _t('nodeCount').toLowerCase() + ', ' + result.numEdges + ' ' + _t('edgeCount').toLowerCase());
                 } else {
                     container.innerHTML = '<p style="color: red;">' + _t('error') + ': ' + result.error + '</p>';
                 }
@@ -627,20 +639,21 @@
                 'employment': '#ffa07a'
             };
             
-            const nodeNames = [
-                {id: 'CRUDE', name: '原油价格', category: 'commodity'},
-                {id: 'GOLD', name: '黄金价格', category: 'commodity'},
-                {id: 'COPPER', name: '铜价格', category: 'commodity'},
-                {id: 'GDP', name: '国内生产总值', category: 'macro'},
-                {id: 'CPI', name: '消费者物价指数', category: 'macro'},
-                {id: 'PPI', name: '生产者物价指数', category: 'macro'},
-                {id: 'M2', name: '广义货币供应', category: 'macro'},
-                {id: 'SP500', name: '标普 500 指数', category: 'financial'},
-                {id: 'BOND', name: '国债收益率', category: 'financial'},
-                {id: 'EXRATE', name: '汇率', category: 'financial'},
-                {id: 'UNEMP', name: '失业率', category: 'employment'},
-                {id: 'PAYROLL', name: '非农就业', category: 'employment'}
+            // i18n-aware label lookup
+            const NODE_LABELS = {
+                zh: { CRUDE: '原油价格', GOLD: '黄金价格', COPPER: '铜价格', GDP: '国内生产总值', CPI: '消费者物价指数', PPI: '生产者物价指数', M2: '广义货币供应', SP500: '标普 500 指数', BOND: '国债收益率', EXRATE: '汇率', UNEMP: '失业率', PAYROLL: '非农就业' },
+                en: { CRUDE: 'Crude Oil', GOLD: 'Gold Price', COPPER: 'Copper Price', GDP: 'GDP', CPI: 'CPI', PPI: 'PPI', M2: 'M2 Money Supply', SP500: 'S&P 500', BOND: 'Bond Yield', EXRATE: 'Exchange Rate', UNEMP: 'Unemployment', PAYROLL: 'Nonfarm Payrolls' }
+            };
+            function nodeLabel(id) { return (NODE_LABELS[LANG] || NODE_LABELS.zh)[id] || id; }
+            const SRC = [
+                'CRUDE','GOLD','COPPER','GDP','CPI','PPI','M2',
+                'SP500','BOND','EXRATE','UNEMP','PAYROLL'
             ];
+            const nodeNames = SRC.map(id => ({id, name: nodeLabel(id), category: (
+                'CRUDE,GOLD,COPPER'.includes(id)?'commodity':
+                'GDP,CPI,PPI,M2'.includes(id)?'macro':
+                'SP500,BOND,EXRATE'.includes(id)?'financial':'employment'
+            )}));
             
             const nodes = nodeNames.map(n => ({
                 id: n.id,
@@ -732,9 +745,18 @@
                 .append('line')
                 .attr('stroke', '#999')
                 .attr('stroke-opacity', 0.6)
-                .attr('stroke-width', d => Math.sqrt(d.weight) * 3)
-                .append('title')
-                .text(d => `${d.source.id} → ${d.target.id}: ${d.weight.toFixed(2)}`);
+                .attr('stroke-width', d => Math.sqrt(d.weight) * 3);
+            
+            // 边权重标签
+            const linkLabels = g.selectAll('.link-label')
+                .data(data.links)
+                .enter()
+                .append('text')
+                .attr('class', 'link-label')
+                .attr('font-size', '8px')
+                .attr('fill', '#666')
+                .attr('text-anchor', 'middle')
+                .text(d => d.weight.toFixed(2));
             
             const nodes = g.selectAll('.node')
                 .data(data.nodes)
@@ -767,6 +789,10 @@
                     .attr('y1', d => d.source.y)
                     .attr('x2', d => d.target.x)
                     .attr('y2', d => d.target.y);
+                
+                linkLabels
+                    .attr('x', d => (d.source.x + d.target.x) / 2)
+                    .attr('y', d => (d.source.y + d.target.y) / 2);
                 
                 nodes
                     .attr('transform', d => `translate(${d.x},${d.y})`);
@@ -845,6 +871,18 @@
                 .attr('r', 5)
                 .attr('fill', '#667eea');
             
+            // X 轴标签
+            svg.selectAll('.x-label')
+                .data([0,5,10,15,19])
+                .enter()
+                .append('text')
+                .attr('x', d => xScale(d))
+                .attr('y', height - 10)
+                .attr('text-anchor', 'middle')
+                .attr('font-size', '9px')
+                .attr('fill', '#999')
+                .text(d => 't=' + d);
+
             svg.append('text')
                 .attr('x', width / 2)
                 .attr('y', 20)
@@ -870,8 +908,8 @@
             
             const sankeyData = {
                 nodes: [
-                    {name: '原油'}, {name: 'PPI'}, {name: 'CPI'},
-                    {name: 'GDP'}, {name: '失业率'}, {name: '国债'}
+                    {name: nodeLabel('CRUDE')}, {name: 'PPI'}, {name: nodeLabel('CPI')},
+                    {name: nodeLabel('GDP')}, {name: nodeLabel('UNEMP')}, {name: nodeLabel('BOND')}
                 ],
                 links: [
                     {source: 0, target: 1, value: 0.72},
@@ -931,7 +969,7 @@
             const decayFactor = parseFloat(document.getElementById('decayFactor').value);
             
             if (!nodeId) {
-                alert(_t('selectNodeFirst'));
+                notify(_t('selectNodeFirst'), true);
                 return;
             }
             
@@ -945,8 +983,7 @@
             // 更新时序图
             updateImpactChart(magnitude, decayFactor);
             
-            // 显示提示
-            alert(_t('shockAlert', nodeId, magnitude, decayFactor));
+            notify(_t('shockAlert', nodeId, magnitude, decayFactor));
         }
         
         // 创建涟漪效果
