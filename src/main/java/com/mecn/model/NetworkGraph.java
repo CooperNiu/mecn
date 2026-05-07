@@ -124,6 +124,10 @@ public class NetworkGraph {
         int maxEdges = n * (n - 1);
         stats.put("density", maxEdges > 0 ? (double) graph.edgeSet().size() / maxEdges : 0.0);
         
+        // 平均度
+        int vertexCount = graph.vertexSet().size();
+        stats.put("averageDegree", vertexCount > 0 ? (2.0 * graph.edgeSet().size()) / vertexCount : 0.0);
+        
         stats.put("metadata", metadata);
         return stats;
     }

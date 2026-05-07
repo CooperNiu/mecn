@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 网络分析 REST API 控制器
@@ -21,21 +22,62 @@ import java.util.*;
 @CrossOrigin(origins = "*")
 public class NetworkController {
 
+    // 轻量级结果缓存（避免每次请求都重跑全链路）
+    private final Map<String, CachedResult> networkCache = new ConcurrentHashMap<>();
+    private static final int MAX_CACHE_SIZE = 20;
+    private static final long CACHE_TTL_MS = 5 * 60_000; // 5 分钟
+
+    private record CachedResult(CausalResult causalResult, NetworkGraph network, long timestamp) {
+        boolean isValid() {
+            return System.currentTimeMillis() - timestamp < CACHE_TTL_MS;
+        }
+    }
+
+    private String buildCacheKey(int numPeriods, double edgeThreshold, double significanceLevel) {
+        return numPeriods + "|" + edgeThreshold + "|" + significanceLevel;
+    }
+
+    private CachedResult getOrBuildNetwork(int numPeriods, double edgeThreshold, double significanceLevel) {
+        String key = buildCacheKey(numPeriods, edgeThreshold, significanceLevel);
+
+        // 清理过期缓存
+        if (networkCache.size() > MAX_CACHE_SIZE) {
+            networkCache.values().removeIf(v -> !v.isValid());
+        }
+
+        CachedResult cached = networkCache.get(key);
+        if (cached != null && cached.isValid()) {
+            return cached;
+        }
+
+        // 构建
+        EnhancedDataGenerator generator = new EnhancedDataGenerator();
+        double[][] data = generator.generateDataForSampleSize(numPeriods);
+        int numIndicators = data[0].length;
+        List<String> codes = generator.getSupportedIndicators().stream()
+            .map(EconomicIndicator::getCode)
+            .limit(numIndicators)
+            .collect(java.util.stream.Collectors.toList());
+
+        CausalResult causalResult = MECNTools.discoverCausalStructure(data, significanceLevel);
+        NetworkGraph network = MECNTools.buildNetwork(causalResult, codes, edgeThreshold);
+
+        CachedResult result = new CachedResult(causalResult, network, System.currentTimeMillis());
+        networkCache.put(key, result);
+        return result;
+    }
+
     @PostMapping("/build")
     public ResponseEntity<Map<String, Object>> buildNetwork(@RequestBody Map<String, Object> request) {
         try {
+            @SuppressWarnings("unused")
             String dataSource = (String) request.getOrDefault("dataSource", "simulated");
             int numPeriods = ((Number) request.getOrDefault("numPeriods", 150)).intValue();
             double edgeThreshold = ((Number) request.getOrDefault("edgeThreshold", 0.08)).doubleValue();
             double significanceLevel = ((Number) request.getOrDefault("significanceLevel", 0.05)).doubleValue();
 
-            EnhancedDataGenerator generator = new EnhancedDataGenerator();
-            double[][] data = generator.generateDataForSampleSize(numPeriods);
-            
-            List<String> codes = Arrays.asList("ECO_0");
-
-            CausalResult causalResult = MECNTools.discoverCausalStructure(data, significanceLevel);
-            NetworkGraph network = MECNTools.buildNetwork(causalResult, codes, edgeThreshold);
+            var cached = getOrBuildNetwork(numPeriods, edgeThreshold, significanceLevel);
+            NetworkGraph network = cached.network();
 
             Map<String, Object> vizData = convertToVizData(network);
 
@@ -76,12 +118,12 @@ public class NetworkController {
                 throw new IllegalArgumentException("shockNode 不能为空");
             }
 
-            EnhancedDataGenerator generator = new EnhancedDataGenerator();
-            double[][] data = generator.generateDataForSampleSize(100);
-            List<String> codes = Arrays.asList("ECO_0");
-            
-            CausalResult causalResult = MECNTools.discoverCausalStructure(data, 0.05);
-            NetworkGraph network = MECNTools.buildNetwork(causalResult, codes, 0.08);
+            var cached = getOrBuildNetwork(100, 0.08, 0.05);
+            NetworkGraph network = cached.network();
+
+            if (!network.getNodes().contains(shockNode)) {
+                throw new IllegalArgumentException("冲击节点 " + shockNode + " 不在网络中。可用节点: " + network.getNodes());
+            }
 
             RippleResult result = MECNTools.simulateShock(network, shockNode, magnitude);
 
@@ -105,12 +147,8 @@ public class NetworkController {
     @GetMapping("/systemic-importance")
     public ResponseEntity<Map<String, Object>> getSystemicImportance() {
         try {
-            EnhancedDataGenerator generator = new EnhancedDataGenerator();
-            double[][] data = generator.generateDataForSampleSize(100);
-            List<String> codes = Arrays.asList("ECO_0");
-            
-            CausalResult causalResult = MECNTools.discoverCausalStructure(data, 0.05);
-            NetworkGraph network = MECNTools.buildNetwork(causalResult, codes, 0.08);
+            var cached = getOrBuildNetwork(100, 0.08, 0.05);
+            NetworkGraph network = cached.network();
 
             List<Map<String, Object>> nodes = new ArrayList<>();
             Graph<String, DefaultWeightedEdge> graph = network.getGraph();

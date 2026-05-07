@@ -220,7 +220,6 @@ public class MECNTools {
             double[][] data = new double[T][N];
             
             for (int i = 0; i < N; i++) {
-                System.arraycopy(timeSeriesData.get(i).getValues(), 0, data[0], 0, T);
                 for (int t = 0; t < T; t++) {
                     data[t][i] = timeSeriesData.get(i).getValues()[t];
                 }
