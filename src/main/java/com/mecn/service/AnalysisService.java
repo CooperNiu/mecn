@@ -8,8 +8,10 @@ import com.mecn.model.NetworkGraph;
 import com.mecn.model.TimeSeriesData;
 import com.mecn.network.CentralityAnalyzer;
 import com.mecn.network.NetworkBuilder;
-import com.mecn.preprocess.Preprocessor;
-import com.mecn.preprocess.SeasonalAdjustment;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import com.mecn.i18n.ConsoleMessage;
+import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,7 +22,10 @@ import java.util.List;
  * 整合数据读取、预处理、因果发现、网络分析等组件
  * 提供端到端的分析流程
  */
+@Service
 public class AnalysisService {
+
+    private static final Logger log = LoggerFactory.getLogger(AnalysisService.class);
     
     /**
      * 执行完整的因果网络分析
@@ -32,70 +37,78 @@ public class AnalysisService {
      */
     public AnalysisResult execute(String inputFile, com.mecn.cli.CommandLineParser.AnalysisConfig config) 
             throws IOException {
-        
+
+        ConsoleMessage msg = new ConsoleMessage();
+
+        // Banner
         System.out.println("╔═══════════════════════════════════════════╗");
-        System.out.println("║     MECN 宏观经济因果网络分析系统         ║");
+        System.out.println("║     " + msg.get("app.name") + "         ║");
         System.out.println("╚═══════════════════════════════════════════╝\n");
-        
+
         // 步骤1: 加载数据
-        System.out.println("【步骤1/6】加载数据...");
+        System.out.println(msg.fmt("cli.step.loading", 1, 6, msg.get("cli.data.file")));
         List<TimeSeriesData> rawData = loadData(inputFile);
-        System.out.println("✓ 成功加载 " + rawData.size() + " 个指标\n");
-        
+        System.out.println(msg.fmt("cli.data.loaded", rawData.size()));
+        System.out.println();
+
         // 步骤2: 数据预处理
-        System.out.println("【步骤2/6】数据预处理...");
+        System.out.println(msg.fmt("cli.step.loading", 2, 6, msg.get("cli.step.preprocess")));
         double[][] processedData = preprocessData(rawData, config);
-        System.out.println("✓ 预处理完成，数据维度: " + processedData.length + " x " + processedData[0].length + "\n");
-        
+        System.out.println(msg.fmt("cli.data.converted", processedData.length, processedData[0].length));
+        System.out.println();
+
         // 步骤3: 超参数自动调优
-        System.out.println("【步骤3/6】超参数自动调优...");
+        System.out.println(msg.fmt("cli.step.loading", 3, 6, msg.get("cli.step.tuning")));
         HyperparameterResult tuningResult = autoTuneParameters(processedData, config);
-        System.out.println(tuningResult.generateReport() + "\n");
-        
+        System.out.println(tuningResult.generateReport());
+        System.out.println();
+
         // 步骤4: 因果发现
-        System.out.println("【步骤4/6】执行因果发现...");
+        System.out.println(msg.fmt("cli.step.loading", 4, 6, msg.get("cli.step.causality")));
         CausalResult causalResult = discoverCausality(processedData, config);
         int edgeCount = countEdges(causalResult);
-        System.out.println("✓ 发现 " + edgeCount + " 条因果关系\n");
-        
+        System.out.println(msg.fmt("cli.discovery.edges", edgeCount));
+        System.out.println();
+
         // 步骤5: 构建网络
-        System.out.println("【步骤5/6】构建因果网络...");
+        System.out.println(msg.fmt("cli.step.loading", 5, 6, msg.get("cli.step.network")));
         List<String> nodeNames = getNodeNames(rawData);
         NetworkGraph network = buildNetwork(causalResult, nodeNames);
-        System.out.println("✓ 网络构建完成");
-        System.out.println("  - 节点数: " + network.getGraph().vertexSet().size());
-        System.out.println("  - 边数: " + network.getGraph().edgeSet().size() + "\n");
-        
+        int vCount = network.getGraph().vertexSet().size();
+        int eCount = network.getGraph().edgeSet().size();
+        System.out.println(msg.fmt("cli.step.done", msg.fmt("cli.network.stats", vCount, eCount)));
+        System.out.println();
+
         // 步骤6: 中心性分析
-        System.out.println("【步骤6/6】中心性分析...");
+        System.out.println(msg.fmt("cli.step.loading", 6, 6, msg.get("cli.step.centrality")));
         CentralityAnalyzer analyzer = new CentralityAnalyzer(network.getGraph());
         var centralities = analyzer.analyze();
-        
-        // 获取Top 5重要节点
+
         var topNodes = centralities.stream()
             .sorted((a, b) -> Double.compare(b.getCompositeScore(), a.getCompositeScore()))
             .limit(5)
             .toList();
-        
-        System.out.println("✓ 中心性分析完成\n");
-        System.out.println("Top 5 系统重要性节点:");
-        for (var result : topNodes) {
-            System.out.printf("  %-15s 综合得分: %.4f  (度中心性: %.4f)%n",
-                result.getNodeId(),
-                result.getCompositeScore(),
-                result.getDegreeCentrality());
+
+        System.out.println(msg.get("cli.centrality.done"));
+        System.out.println();
+        System.out.println(msg.get("cli.centrality.top5"));
+        for (var node : topNodes) {
+            System.out.println(msg.fmt("cli.centrality.row",
+                String.format("%-15s", node.getNodeId()),
+                node.getCompositeScore(),
+                node.getDegreeCentrality()));
         }
-        
+
         // 构建分析结果
         AnalysisResult analysisResult = new AnalysisResult();
         analysisResult.setIndicatorCount(rawData.size());
         analysisResult.setDataPoints(processedData.length);
         analysisResult.setCausalEdges(edgeCount);
-        analysisResult.setNodeCount(network.getGraph().vertexSet().size());
-        analysisResult.setEdgeCount(network.getGraph().edgeSet().size());
+        analysisResult.setNodeCount(vCount);
+        analysisResult.setEdgeCount(eCount);
         analysisResult.setTopNodes(topNodes);
         analysisResult.setTuningResult(tuningResult);
-        
+
         return analysisResult;
     }
     
@@ -103,14 +116,13 @@ public class AnalysisService {
      * 加载数据
      */
     private List<TimeSeriesData> loadData(String inputFile) throws IOException {
+        ConsoleMessage msg = new ConsoleMessage();
         if (inputFile != null && !inputFile.isEmpty()) {
-            // 从CSV文件读取
-            System.out.println("  从文件读取: " + inputFile);
+            System.out.println("  " + msg.fmt("cli.data.file", inputFile));
             CsvDataReader reader = new CsvDataReader();
             return reader.read(inputFile);
         } else {
-            // 使用模拟数据
-            System.out.println("  使用模拟数据生成器");
+            System.out.println("  " + msg.get("cli.data.simulated"));
             DataProvider provider = new SimulatedDataProvider();
             java.time.LocalDate startDate = java.time.LocalDate.of(2010, 1, 1);
             java.time.LocalDate endDate = java.time.LocalDate.of(2022, 6, 30);
@@ -135,7 +147,7 @@ public class AnalysisService {
             }
         }
         
-        System.out.println("  数据转换完成: " + T + " 时间点 x " + N + " 指标");
+        System.out.println("  " + new ConsoleMessage().fmt("cli.data.converted", T, N));
         
         return dataMatrix;
     }
@@ -145,8 +157,7 @@ public class AnalysisService {
      */
     private HyperparameterResult autoTuneParameters(double[][] data, 
                                                     com.mecn.cli.CommandLineParser.AnalysisConfig config) {
-        // LASSO自动调优
-        System.out.println("  执行LASSO超参数调优...");
+        System.out.println("  " + new ConsoleMessage().get("cli.tuning.running"));
         LassoRegression lasso = new LassoRegression();
         HyperparameterResult lassoResult = lasso.autoTuneLambda(data);
         
@@ -188,9 +199,7 @@ public class AnalysisService {
         causalConfig.setMaxLag(config.getMaxLag());
         causalConfig.setSignificanceLevel(config.getSignificanceLevel());
         
-        System.out.println("  使用算法: " + algorithm);
-        System.out.println("  最大滞后阶数: " + config.getMaxLag());
-        System.out.println("  显著性水平: " + config.getSignificanceLevel());
+        System.out.println("  " + new ConsoleMessage().fmt("cli.discovery.running", algorithm, config.getMaxLag(), config.getSignificanceLevel()));
         
         return engine.discover(data, causalConfig);
     }

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MECN - 高维宏观经济因果网络联动模型</title>
+    <title id="page-title-tag">MECN</title>
     <style>
         * {
             margin: 0;
@@ -293,90 +293,125 @@
 </head>
 <body>
     <header>
-        <h1>🔗 MECN - 高维宏观经济因果网络联动模型</h1>
-        <p class="subtitle">Macro Economic Causal Network - 捕捉经济指标间的因果关系与涟漪效应</p>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div>
+                <h1 id="page-title">🔗 <script>document.write(_t('title'))</script></h1>
+                <p class="subtitle" id="page-subtitle"><script>document.write(_t('subtitle'))</script></p>
+            </div>
+            <select onchange="switchLang(this.value)" style="padding:4px 8px;border:2px solid #ddd;border-radius:5px;">
+                <option value="zh">中文</option>
+                <option value="en">English</option>
+            </select>
+        </div>
     </header>
+    <script>
+        function switchLang(lang) {
+            window.LANG = lang;
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.textContent = _t(el.dataset.i18n);
+            });
+            document.getElementById('page-title').innerHTML = '🔗 ' + _t('title');
+            document.getElementById('page-subtitle').textContent = _t('subtitle');
+            document.getElementById('page-title-tag').textContent = _t('title');
+            document.getElementById('build-hint').textContent = _t('clickBuild');
+            document.getElementById('sankey-hint').textContent = _t('buildFirst');
+            document.getElementById('impact-title').textContent = _t('impactTitle');
+            document.getElementById('impact-hint').textContent = _t('impactHint');
+        }
+        function applyI18n() {
+            document.querySelectorAll('[data-i18n]').forEach(el => {
+                el.textContent = _t(el.dataset.i18n);
+            });
+            document.getElementById('page-title').innerHTML = '🔗 ' + _t('title');
+            document.getElementById('page-subtitle').textContent = _t('subtitle');
+            document.getElementById('page-title-tag').textContent = _t('title');
+            document.getElementById('build-hint').textContent = _t('clickBuild');
+            document.getElementById('sankey-hint').textContent = _t('buildFirst');
+            document.getElementById('impact-title').textContent = _t('impactTitle');
+            document.getElementById('impact-hint').textContent = _t('impactHint');
+        }
+        document.addEventListener('DOMContentLoaded', applyI18n);
+    </script>
     
     <main>
         <aside class="controls">
             <div class="control-group">
-                <label for="dataSource">数据源</label>
+                <label for="dataSource" data-i18n="dataSource"></label>
                 <select id="dataSource">
-                    <option value="simulated">模拟数据</option>
+                    <option value="simulated" data-i18n="simulated"></option>
                     <option value="fred">FRED API</option>
                 </select>
             </div>
             
             <div class="control-group">
-                <label for="numPeriods">历史期数（月）</label>
+                <label for="numPeriods" data-i18n="numPeriods"></label>
                 <input type="number" id="numPeriods" value="150" min="50" max="500">
             </div>
             
             <div class="control-group">
-                <label for="edgeThreshold">边阈值：<span id="thresholdValue">0.08</span></label>
+                <label for="edgeThreshold"><span data-i18n="edgeThreshold"></span>：<span id="thresholdValue">0.08</span></label>
                 <input type="range" id="edgeThreshold" value="0.08" step="0.01" min="0" max="1">
-                <div class="slider-value">过滤弱连接</div>
+                <div class="slider-value" data-i18n="filterWeak"></div>
             </div>
             
-            <button onclick="buildNetwork()">构建网络</button>
-            <button class="secondary" onclick="showSankey()">桑基图</button>
+            <button onclick="buildNetwork()" data-i18n="buildNetwork"></button>
+            <button class="secondary" onclick="showSankey()" data-i18n="sankey"></button>
             
             <div class="control-group" style="margin-top: 1.5rem;">
-                <label>💥 冲击模拟</label>
+                <label>💥 <span data-i18n="shockSim"></span></label>
                 <div class="shock-input">
                     <select id="shockNode">
-                        <option value="">选择节点</option>
+                        <option value="" data-i18n="selectNode"></option>
                     </select>
-                    <input type="number" id="shockMagnitude" value="-0.1" step="0.01" placeholder="幅度">
+                    <input type="number" id="shockMagnitude" value="-0.1" step="0.01" placeholder="">
                 </div>
-                <button class="tertiary" onclick="simulateShock()" style="margin-top: 0.5rem;">
-                    执行冲击
+                <button class="tertiary" onclick="simulateShock()" style="margin-top: 0.5rem;" data-i18n="execShock">
                 </button>
             </div>
             
             <div class="control-group">
-                <label for="decayFactor">衰减因子：<span id="decayValue">0.9</span></label>
+                <label for="decayFactor"><span data-i18n="decayFactor"></span>：<span id="decayValue">0.9</span></label>
                 <input type="range" id="decayFactor" value="0.9" step="0.05" min="0.5" max="0.99">
-                <div class="slider-value">冲击传播衰减速率</div>
+                <div class="slider-value" data-i18n="decayRate"></div>
             </div>
             
             <div class="stats" id="stats" style="display: none;">
-                <h3 style="margin-bottom: 1rem;">网络统计</h3>
+                <h3 style="margin-bottom: 1rem;" data-i18n="networkStats"></h3>
                 <div class="stat-item">
-                    <span class="stat-label">节点数:</span>
+                    <span class="stat-label" data-i18n="nodeCount"></span>
                     <span class="stat-value" id="nodeCount">-</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">边数:</span>
+                    <span class="stat-label" data-i18n="edgeCount"></span>
                     <span class="stat-value" id="edgeCount">-</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">网络密度:</span>
+                    <span class="stat-label" data-i18n="density"></span>
                     <span class="stat-value" id="density">-</span>
                 </div>
                 <div class="stat-item">
-                    <span class="stat-label">平均度:</span>
+                    <span class="stat-label" data-i18n="avgDegree"></span>
                     <span class="stat-value" id="avgDegree">-</span>
                 </div>
             </div>
             
             <div class="legend">
-                <h4 style="margin-bottom: 0.5rem;">图例</h4>
+                <h4 style="margin-bottom: 0.5rem;" data-i18n="legend"></h4>
                 <div class="legend-item">
                     <div class="legend-color" style="background: #ff6b6b;"></div>
-                    <span>大宗商品 (Commodity)</span>
+                    <span data-i18n="commodity"></span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color" style="background: #4ecdc4;"></div>
-                    <span>宏观指标 (Macro)</span>
+                    <span data-i18n="macro"></span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color" style="background: #45b7d1;"></div>
-                    <span>金融市场 (Financial)</span>
+                    <span data-i18n="financial"></span>
                 </div>
                 <div class="legend-item">
                     <div class="legend-color" style="background: #ffa07a;"></div>
-                    <span>就业指标 (Employment)</span>
+                    <span data-i18n="employment"></span>
                 </div>
             </div>
         </aside>
@@ -384,14 +419,14 @@
         <section class="visualization-area">
             <div class="viz-panel network-viz">
                 <div class="tab-buttons">
-                    <button class="tab-btn active" onclick="switchTab('network')">网络图</button>
-                    <button class="tab-btn" onclick="switchTab('timeline')">时间轴</button>
-                    <button class="tab-btn" onclick="switchTab('sankey')">桑基图</button>
+                    <button class="tab-btn active" onclick="switchTab('network')" data-i18n="tabNetwork"></button>
+                    <button class="tab-btn" onclick="switchTab('timeline')" data-i18n="tabTimeline"></button>
+                    <button class="tab-btn" onclick="switchTab('sankey')" data-i18n="tabSankey"></button>
                 </div>
                 
                 <div id="network-tab" class="viz-tab active">
                     <div id="network-container">
-                        <p>点击"构建网络"开始分析</p>
+                        <p id="build-hint"></p>
                     </div>
                 </div>
                 
@@ -401,17 +436,15 @@
                 
                 <div id="sankey-tab" class="viz-tab">
                     <div id="sankey-container">
-                        <p style="text-align: center; color: #999; margin-top: 180px;">
-                            先构建网络，然后点击"桑基图"按钮
-                        </p>
+                        <p id="sankey-hint" style="text-align: center; color: #999; margin-top: 180px;"></p>
                     </div>
                 </div>
             </div>
             
             <div class="viz-panel timeline-viz">
-                <h3 style="margin-bottom: 0.5rem;">📊 冲击传播时序</h3>
+                <h3 style="margin-bottom: 0.5rem;">📊 <span id="impact-title"></span></h3>
                 <div id="impact-chart" style="height: 150px; display: flex; align-items: center; justify-content: center; color: #999;">
-                    执行冲击后显示传播过程
+                    <span id="impact-hint"></span>
                 </div>
             </div>
         </section>
@@ -421,6 +454,103 @@
     
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <script>
+        // ---------- i18n ----------
+        const I18N = {
+            zh: {
+                title: 'MECN - 高维宏观经济因果网络联动模型',
+                subtitle: 'Macro Economic Causal Network - 捕捉经济指标间的因果关系与涟漪效应',
+                'dataSource': '数据源',
+                'simulated': '模拟数据',
+                'numPeriods': '历史期数（月）',
+                edgeThreshold: '边阈值',
+                filterWeak: '过滤弱连接',
+                buildNetwork: '构建网络',
+                sankey: '桑基图',
+                shockSim: '冲击模拟',
+                selectNode: '选择节点',
+                magnitude: '幅度',
+                execShock: '执行冲击',
+                decayFactor: '衰减因子',
+                decayRate: '冲击传播衰减速率',
+                networkStats: '网络统计',
+                nodeCount: '节点数',
+                edgeCount: '边数',
+                density: '网络密度',
+                avgDegree: '平均度',
+                legend: '图例',
+                commodity: '大宗商品',
+                macro: '宏观指标',
+                financial: '金融市场',
+                employment: '就业指标',
+                tabNetwork: '网络图',
+                tabTimeline: '时间轴',
+                tabSankey: '桑基图',
+                clickBuild: '点击"构建网络"开始分析',
+                impactTitle: '冲击传播时序',
+                impactHint: '执行冲击后显示传播过程',
+                building: '正在构建网络...',
+                buildFirst: '先构建网络，然后点击"桑基图"按钮',
+                error: '错误',
+                requestFail: '请求失败',
+                selectNodeFirst: '请选择要冲击的节点',
+                shockAlert: '对 {0} 施加 {1} 的冲击\n衰减因子：{2}',
+                changeOverTime: '冲击影响随时间衰减',
+                cat: '类别',
+                size: '大小',
+            },
+            en: {
+                title: 'MECN - Macro Economic Causal Network',
+                subtitle: 'Causal relationships and ripple effects among economic indicators',
+                'dataSource': 'Data Source',
+                'simulated': 'Simulated Data',
+                'numPeriods': 'Periods (months)',
+                edgeThreshold: 'Edge Threshold',
+                filterWeak: 'Filter weak connections',
+                buildNetwork: 'Build Network',
+                sankey: 'Sankey Diagram',
+                shockSim: 'Shock Simulation',
+                selectNode: 'Select node',
+                magnitude: 'Magnitude',
+                execShock: 'Execute Shock',
+                decayFactor: 'Decay Factor',
+                decayRate: 'Shock propagation decay rate',
+                networkStats: 'Network Statistics',
+                nodeCount: 'Nodes',
+                edgeCount: 'Edges',
+                density: 'Density',
+                avgDegree: 'Avg. Degree',
+                legend: 'Legend',
+                commodity: 'Commodity',
+                macro: 'Macro',
+                financial: 'Financial',
+                employment: 'Employment',
+                tabNetwork: 'Network',
+                tabTimeline: 'Timeline',
+                tabSankey: 'Sankey',
+                clickBuild: 'Click "Build Network" to start',
+                impactTitle: 'Shock Propagation',
+                impactHint: 'Run a shock to see the propagation',
+                building: 'Building network...',
+                buildFirst: 'Build the network first, then click "Sankey"',
+                error: 'Error',
+                requestFail: 'Request failed',
+                selectNodeFirst: 'Please select a node to shock',
+                shockAlert: 'Shock {0} with magnitude {1}\nDecay factor: {2}',
+                changeOverTime: 'Impact decays over time',
+                cat: 'Category',
+                size: 'Size',
+            }
+        };
+        const LANG = navigator.language.startsWith('zh') ? 'zh' : 'en';
+        function _t(key, ...args) {
+            let val = (I18N[LANG] || I18N.en)[key];
+            if (!val) val = I18N.en[key] || '!' + key + '!';
+            if (args.length > 0) {
+                args.forEach((a, i) => { val = val.replace('{' + i + '}', a); });
+            }
+            return val;
+        }
+
         let currentNetworkData = null;
         let simulation = null;
         
@@ -451,7 +581,7 @@
         // 网络构建函数
         async function buildNetwork() {
             const container = document.getElementById('network-container');
-            container.innerHTML = '<p class="loading">正在构建网络...</p>';
+            container.innerHTML = '<p class="loading">' + _t('building') + '</p>';
             
             const dataSource = document.getElementById('dataSource').value;
             const numPeriods = parseInt(document.getElementById('numPeriods').value);
@@ -480,10 +610,10 @@
                     // 渲染网络
                     renderNetwork(result.data);
                 } else {
-                    container.innerHTML = '<p style="color: red;">错误：' + result.error + '</p>';
+                    container.innerHTML = '<p style="color: red;">' + _t('error') + ': ' + result.error + '</p>';
                 }
             } catch (error) {
-                container.innerHTML = '<p style="color: red;">请求失败：' + error.message + '</p>';
+                container.innerHTML = '<p style="color: red;">' + _t('requestFail') + ': ' + error.message + '</p>';
             }
         }
         
@@ -554,7 +684,7 @@
         // 填充冲击节点选择器
         function populateShockNodes(nodes) {
             const select = document.getElementById('shockNode');
-            select.innerHTML = '<option value="">选择节点</option>';
+            select.innerHTML = '<option value="">' + _t('selectNode') + '</option>';
             
             nodes.forEach(node => {
                 const option = document.createElement('option');
@@ -720,7 +850,7 @@
                 .attr('y', 20)
                 .attr('text-anchor', 'middle')
                 .attr('fill', '#333')
-                .text('冲击影响随时间衰减');
+                .text(_t('changeOverTime'));
         }
         
         // 显示桑基图
@@ -801,7 +931,7 @@
             const decayFactor = parseFloat(document.getElementById('decayFactor').value);
             
             if (!nodeId) {
-                alert('请选择要冲击的节点');
+                alert(_t('selectNodeFirst'));
                 return;
             }
             
@@ -816,7 +946,7 @@
             updateImpactChart(magnitude, decayFactor);
             
             // 显示提示
-            alert(`对 ${nodeId} 施加 ${magnitude} 的冲击\n衰减因子：${decayFactor}`);
+            alert(_t('shockAlert', nodeId, magnitude, decayFactor));
         }
         
         // 创建涟漪效果
@@ -886,8 +1016,8 @@
             tooltip.innerHTML = `
                 <strong>${d.name}</strong><br/>
                 ID: ${d.id}<br/>
-                类别：${d.category}<br/>
-                大小：${d.size.toFixed(1)}
+                ${_t('cat')}: ${d.category}<br/>
+                ${_t('size')}: ${d.size.toFixed(1)}
             `;
         }
         
