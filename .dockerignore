@@ -30,9 +30,11 @@ logs/
 *.swp
 *~
 
-# 文档（不需要打包到镜像中）
-*.md
+# 文档（docs 目录不需要打包到镜像中，但根目录 README 保留）
 docs/
+!README.md
+!README_EN.md
+!CHANGELOG.md
 
 # 测试报告
 test-output/

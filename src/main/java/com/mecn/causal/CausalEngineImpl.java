@@ -1,5 +1,8 @@
 package com.mecn.causal;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,17 +15,26 @@ import java.util.concurrent.*;
  * 支持多种因果方法的集成
  */
 public class CausalEngineImpl implements CausalEngine {
-    
+
+    private static final Logger log = LoggerFactory.getLogger(CausalEngineImpl.class);
+
+    // 共享线程池，避免每次调用创建新池
+    private static final ExecutorService SHARED_EXECUTOR = Executors.newCachedThreadPool(r -> {
+        Thread t = new Thread(r, "causal-worker");
+        t.setDaemon(true);
+        return t;
+    });
+
     private final List<CausalMethod> methods;
     private final EnsembleFusionStrategy fusionStrategy;
     private final boolean parallel;
-    
+
     public CausalEngineImpl() {
         this.methods = new ArrayList<>();
         this.fusionStrategy = new EnsembleFusionStrategy();
         this.parallel = true;
     }
-    
+
     public CausalEngineImpl(boolean parallel) {
         this.methods = new ArrayList<>();
         this.fusionStrategy = new EnsembleFusionStrategy();
@@ -91,21 +103,20 @@ public class CausalEngineImpl implements CausalEngine {
      * 并行执行各因果方法
      */
     private List<CausalMatrix> executeParallel(double[][] data, Map<String, Object> methodParams) {
-        ExecutorService executor = Executors.newFixedThreadPool(methods.size());
-        List<Future<CausalMatrix>> futures = new ArrayList<>();
+        List<Future<CausalMatrix>> futures = new ArrayList<>(methods.size());
         
         try {
-            // 提交所有任务
+            // 使用共享线程池提交所有任务
             for (CausalMethod method : methods) {
                 Callable<CausalMatrix> task = () -> {
                     Map<String, Object> params = extractMethodParams(methodParams, method.getName());
                     return method.compute(data, params);
                 };
-                futures.add(executor.submit(task));
+                futures.add(SHARED_EXECUTOR.submit(task));
             }
             
             // 收集结果
-            List<CausalMatrix> results = new ArrayList<>();
+            List<CausalMatrix> results = new ArrayList<>(methods.size());
             for (Future<CausalMatrix> future : futures) {
                 results.add(future.get());
             }
@@ -113,9 +124,8 @@ public class CausalEngineImpl implements CausalEngine {
             return results;
             
         } catch (InterruptedException | ExecutionException e) {
+            Thread.currentThread().interrupt();
             throw new RuntimeException("Error executing causal methods in parallel", e);
-        } finally {
-            executor.shutdown();
         }
     }
     

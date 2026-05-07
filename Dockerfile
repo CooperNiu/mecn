@@ -2,7 +2,7 @@
 # Macro Economic Causal Network - 高维宏观经济因果网络联动模型
 
 # ========== 构建阶段 ==========
-FROM maven:3.9.6-eclipse-temurin-14 AS builder
+FROM maven:3.9.6-eclipse-temurin-17 AS builder
 
 # 设置工作目录
 WORKDIR /app
@@ -16,7 +16,7 @@ COPY src ./src
 RUN mvn clean package -DskipTests -B
 
 # ========== 运行阶段 ==========
-FROM eclipse-temurin:14-jre-alpine
+FROM eclipse-temurin:17-jre-alpine
 
 # 设置工作目录
 WORKDIR /app
@@ -44,5 +44,5 @@ ENV JAVA_OPTS="-Xms512m -Xmx1024m -XX:+UseG1GC -XX:MaxGCPauseMillis=200"
 HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
     CMD wget --no-verbose --tries=1 --spider http://localhost:8080/api/health || exit 1
 
-# 启动应用
-ENTRYPOINT ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]
+# 启动应用（使用 exec 确保 SIGTERM 正确传递给 Java 进程）
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar app.jar"]
