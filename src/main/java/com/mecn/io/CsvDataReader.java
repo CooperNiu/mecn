@@ -2,6 +2,9 @@ package com.mecn.io;
 
 import com.mecn.model.TimeSeriesData;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.*;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -14,7 +17,8 @@ import java.util.*;
  * 预期格式: 第一列为日期，后续列为各个指标的值
  */
 public class CsvDataReader implements DataReader {
-    
+
+    private static final Logger log = LoggerFactory.getLogger(CsvDataReader.class);
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     
     @Override
@@ -62,7 +66,7 @@ public class CsvDataReader implements DataReader {
                 
                 String[] values = line.split(",");
                 if (values.length != headers.length) {
-                    System.err.println("警告: 第" + lineNumber + "行列数不匹配，已跳过");
+                    log.warn("第{}行列数不匹配 (预期{}列, 实际{}列), 已跳过", lineNumber, headers.length, values.length);
                     continue;
                 }
                 
@@ -71,7 +75,7 @@ public class CsvDataReader implements DataReader {
                     LocalDate date = LocalDate.parse(values[0].trim(), DATE_FORMATTER);
                     dates.add(date);
                 } catch (Exception e) {
-                    System.err.println("警告: 第" + lineNumber + "行日期格式错误: " + values[0]);
+                    log.warn("第{}行日期格式错误: {}, 已跳过", lineNumber, values[0]);
                     continue;
                 }
                 
@@ -82,7 +86,7 @@ public class CsvDataReader implements DataReader {
                         double value = Double.parseDouble(values[i].trim());
                         dataMap.get(columnName).add(value);
                     } catch (NumberFormatException e) {
-                        System.err.println("警告: 第" + lineNumber + "行数据格式错误: " + values[i]);
+                        log.warn("第{}行数据格式错误: {}, 按NaN处理", lineNumber, values[i]);
                         dataMap.get(columnName).add(Double.NaN);
                     }
                 }
