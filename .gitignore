@@ -92,6 +92,13 @@ ehthumbs.db
 Desktop.ini
 $RECYCLE.BIN/
 
+# Node.js
+node_modules/
+package-lock.json
+
+# Frontend build
+**/frontend/dist/
+
 # Application-specific
 src/main/resources/application-local.yml
 src/main/resources/application-local.properties
